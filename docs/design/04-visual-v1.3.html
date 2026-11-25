@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星空摄影档案管理软件 · 高保真视觉稿 v1.3</title>
+<style>
+  :root{
+    --bg:#05070e;
+    --bg-2:#080d18;
+    --panel:#0b1220;
+    --panel-2:#0f1828;
+    --panel-3:#131f32;
+    --line:rgba(150,180,220,.13);
+    --line-2:rgba(150,180,220,.22);
+    --text:#e9f0fc;
+    --text-2:#b9c8de;
+    --muted:#8496b4;
+    --dim:#5d6f8c;
+    --cyan:#6ee7ff;
+    --violet:#a78bfa;
+    --amber:#f5c26b;
+    --rose:#fb7185;
+    --green:#5eead4;
+    --r-xs:6px;
+    --r-sm:9px;
+    --r:12px;
+    --r-lg:16px;
+    --r-xl:20px;
+    --max:1180px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI Variable","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(110,231,255,.075), transparent 62%),
+      radial-gradient(900px 560px at 8% 2%, rgba(167,139,250,.075), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    font-size:15px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px 110px}
+
+  /* ---------- 文档头部 ---------- */
+  header{padding:70px 0 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header::after{
+    content:"";position:absolute;right:-80px;top:-40px;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle, rgba(110,231,255,.10), transparent 62%);
+    pointer-events:none;
+  }
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+  h1{font-size:41px;line-height:1.2;margin:18px 0 12px;letter-spacing:-.015em;font-weight:700}
+  h1 span{display:block;font-size:26px;font-weight:600;margin-top:6px;background:linear-gradient(100deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:720px;font-size:15.5px;margin:0}
+  .sub strong{color:#fff;font-weight:600}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{font-size:12px;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.022);padding:5px 11px;border-radius:999px}
+  .chip b{color:var(--text);font-weight:600}
+
+  nav{position:sticky;top:0;z-index:40;background:rgba(5,7,14,.84);backdrop-filter:blur(18px) saturate(140%);border-bottom:1px solid var(--line);margin-bottom:48px}
+  nav .inner{max-width:var(--max);margin:0 auto;padding:10px 28px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
+  nav .inner::-webkit-scrollbar{display:none}
+  nav a{flex:0 0 auto;font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:7px;white-space:nowrap;transition:.18s}
+  nav a:hover{color:var(--text);background:rgba(255,255,255,.055)}
+
+  section{margin:0 0 60px;scroll-margin-top:66px}
+  h2{font-size:12.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 8px;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  h2 .no{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .lead{color:var(--muted);font-size:13.5px;margin:0 0 20px;max-width:760px}
+  h3{font-size:18px;margin:36px 0 10px;font-weight:650;letter-spacing:-.005em}
+  h3 .num{color:var(--violet);font-family:var(--mono);font-size:13px;margin-right:8px}
+  h4{font-size:14px;margin:0 0 6px;font-weight:650;color:#dbe7f9}
+  p{margin:8px 0 14px;color:var(--text-2)}
+  ul{margin:8px 0 16px;padding-left:20px;color:var(--text-2)}
+  li{margin:5px 0}
+  strong{color:#fff;font-weight:650}
+  code{font-family:var(--mono);font-size:12px;background:rgba(110,231,255,.075);border:1px solid rgba(110,231,255,.15);color:#bfeaf7;padding:1px 6px;border-radius:5px}
+
+  /* ---------- 规格说明 ---------- */
+  .spec{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:7px 22px;font-size:12.5px;color:#a8bad3}
+  @media(max-width:780px){.spec{grid-template-columns:1fr}}
+  .spec li{display:flex;gap:9px;align-items:flex-start;margin:0;padding:0}
+  .spec i{flex:0 0 auto;width:16px;height:16px;border-radius:50%;background:rgba(110,231,255,.10);border:1px solid rgba(110,231,255,.3);color:var(--cyan);font-size:9.5px;font-style:normal;display:flex;align-items:center;justify-content:center;margin-top:3px;font-family:var(--mono)}
+  .spec b{color:#e2ecfa;font-weight:600}
+  .spec code{font-size:11px;padding:0 4px}
+
+  .note{border-left:2px solid var(--violet);background:rgba(167,139,250,.055);padding:12px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:13px;color:#d3dcf0}
+  .note b{color:var(--violet)}
+  .note.warn{border-left-color:var(--amber);background:rgba(245,194,107,.055)}
+  .note.warn b{color:var(--amber)}
+
+  /* ---------- 画布容器 ---------- */
+  .frame{
+    background:linear-gradient(180deg,#080d18,#060a12);
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    overflow:hidden;
+    margin:18px 0 6px;
+    box-shadow:0 24px 60px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.035);
+  }
+  .frame-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;background:rgba(255,255,255,.028);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--dim)}
+  .frame-bar .lights{display:flex;gap:6px}
+  .frame-bar .lights i{width:9px;height:9px;border-radius:50%;background:#22314a}
+  .frame-bar .lights i:first-child{background:#3a2a38}
+  .frame-bar .t{margin-left:4px;color:#8698b6;letter-spacing:.02em}
+  .frame-bar .r{margin-left:auto;font-size:10.5px;color:#54657f}
+
+  /* ---------- 应用外壳 ---------- */
+  .app{display:flex;min-height:520px;background:
+    radial-gradient(680px 380px at 82% -10%,rgba(110,231,255,.07),transparent 65%),
+    #060a12;position:relative}
+  .sidebar{
+    width:204px;flex:0 0 204px;padding:16px 12px 14px;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;gap:3px;background:rgba(8,13,24,.75)
+  }
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,rgba(110,231,255,.22),rgba(167,139,250,.22));border:1px solid rgba(110,231,255,.3);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px -4px rgba(110,231,255,.5)}
+  .brand .mark svg{width:17px;height:17px}
+  .brand .name{font-size:13.5px;font-weight:650;letter-spacing:.02em;line-height:1.2}
+  .brand .name small{display:block;font-size:9.5px;color:var(--dim);letter-spacing:.14em;font-weight:500;margin-top:2px}
+  .nav-label{font-size:9.5px;letter-spacing:.16em;color:#4f6180;text-transform:uppercase;padding:12px 10px 5px;font-weight:600}
+  .navi{display:flex;align-items:center;gap:9px;height:33px;padding:0 10px;border-radius:8px;font-size:12.5px;color:#93a5c2;border:1px solid transparent;position:relative;transition:.18s}
+  .navi svg{width:14px;height:14px;opacity:.75;flex:0 0 14px}
+  .navi .cnt{margin-left:auto;font-size:10.5px;color:#5f7292;font-weight:500}
+  .navi:hover{background:rgba(255,255,255,.04);color:#cfdcef}
+  .navi.on{background:linear-gradient(90deg,rgba(110,231,255,.13),rgba(110,231,255,.045));border-color:rgba(110,231,255,.26);color:#b6f0fb;box-shadow:inset 2px 0 0 var(--cyan)}
+  .navi.on svg{opacity:1}
+  .navi .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(94,234,212,.8)}
+  .navi .dot.warn{background:var(--amber);box-shadow:0 0 8px rgba(245,194,107,.8)}
+  .side-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+  .device{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;background:rgba(255,255,255,.028);border:1px solid var(--line);font-size:10.5px;color:#8fa2be;line-height:1.35}
+  .device .led{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px rgba(94,234,212,.9);flex:0 0 7px}
+  .device b{color:#dce8f8;font-size:11px;font-weight:600;display:block}
+  .device .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.09);margin-top:5px;overflow:hidden}
+  .device .bar i{display:block;height:100%;width:64%;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:2px}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--line);background:rgba(6,10,18,.5)}
+  .search{flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;color:#6f82a0}
+  .search svg{width:14px;height:14px;opacity:.7}
+  .search kbd{margin-left:auto;font-family:var(--mono);font-size:10px;color:#5f7292;border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:rgba(255,255,255,.03)}
+  .icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;color:#93a5c2}
+  .icon-btn svg{width:15px;height:15px}
+  .content{padding:20px 22px 22px;flex:1;min-width:0}
+
+  /* ---------- 按钮与标签 ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 13px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--line-2);background:rgba(255,255,255,.045);color:#d5e1f2;white-space:nowrap;letter-spacing:.01em}
+  .btn svg{width:13px;height:13px}
+  .btn.primary{background:linear-gradient(180deg,rgba(110,231,255,.22),rgba(110,231,255,.12));border-color:rgba(110,231,255,.45);color:#c8f7ff;box-shadow:0 0 20px -6px rgba(110,231,255,.55),inset 0 1px 0 rgba(255,255,255,.14)}
+  .btn.ghost{background:transparent;border-color:var(--line)}
+  .btn.sm{height:27px;padding:0 10px;font-size:11px;border-radius:7px}
+  .btn.danger{border-color:rgba(251,113,133,.35);color:#ffc3cc;background:rgba(251,113,133,.08)}
+  .pill{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;font-size:10.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+  .pill i{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .pill.ok{color:#8ff2e3;background:rgba(94,234,212,.10);border:1px solid rgba(94,234,212,.26)}
+  .pill.info{color:#c3b8ff;background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.26)}
+  .pill.warn{color:#f8d79b;background:rgba(245,194,107,.10);border:1px solid rgba(245,194,107,.26)}
+  .pill.err{color:#ffb3be;background:rgba(251,113,133,.10);border:1px solid rgba(251,113,133,.26)}
+  .pill.mute{color:#93a5c2;background:rgba(150,180,220,.08);border:1px solid var(--line)}
+  .pill.cyan{color:#b3f3ff;background:rgba(110,231,255,.10);border:1px solid rgba(110,231,255,.28)}
+  .tag{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:5px;font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .tag.auto{color:#c3b8ff;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.24)}
+  .tag.manual{color:#a9ecfa;background:rgba(110,231,255,.11);border:1px solid rgba(110,231,255,.26)}
+  .tag.file{color:#9fb0cc;background:rgba(150,180,220,.08);border:1px solid var(--line)}
+
+  /* ---------- 图片 ---------- */
+  .shot{position:relative;overflow:hidden;border-radius:8px;background:#0a111d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+  .shot img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .shot::after{content:"";position:absolute;inset:0;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -30px 40px -18px rgba(0,0,0,.6);pointer-events:none}
+  .shot.hoverable:hover img{transform:scale(1.045)}
+  .shot .ph-cap{position:absolute;left:0;right:0;bottom:0;padding:8px 9px 7px;background:linear-gradient(transparent,rgba(3,6,12,.86));font-size:9.5px;color:#cfdcee;letter-spacing:.03em;display:flex;justify-content:space-between;gap:6px}
+  /* ---------- 页内标题 ---------- */
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .page-head .ph-t{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  .page-head h3{font-size:22px;margin:4px 0 0;font-weight:650;letter-spacing:-.01em}
+  .page-head h3 span{color:var(--muted);font-size:13px;font-weight:400;margin-left:8px;letter-spacing:0}
+  .page-head .acts{display:flex;gap:7px;align-items:center}
+
+  /* ---------- 首页主视觉 ---------- */
+  .hero{position:relative;border-radius:var(--r);overflow:hidden;height:268px;border:1px solid var(--line);background:#070c15}
+  .hero img{width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:saturate(1.02)}
+  .hero::after{content:"";position:absolute;inset:0;background:
+      linear-gradient(90deg,rgba(4,7,14,.92) 0%,rgba(4,7,14,.55) 38%,rgba(4,7,14,.05) 68%,rgba(4,7,14,.35) 100%),
+      linear-gradient(0deg,rgba(4,7,14,.9),transparent 46%)}
+  .hero .pin{position:absolute;left:16px;top:14px;z-index:3;display:flex;align-items:center;gap:6px;height:23px;padding:0 9px;border-radius:999px;background:rgba(8,13,24,.66);border:1px solid rgba(110,231,255,.34);backdrop-filter:blur(8px);font-size:10px;color:#b9f1fb;letter-spacing:.05em}
+  .hero .pin svg{width:10px;height:10px}
+  .hero .copy{position:absolute;left:22px;bottom:20px;z-index:3;max-width:400px}
+  .hero .copy .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9ec6dc;margin-bottom:5px}
+  .hero .copy .nm{font-size:27px;font-weight:700;letter-spacing:-.01em;line-height:1.15;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+  .hero .copy .en{font-size:11.5px;color:#a9bfd9;letter-spacing:.05em;margin-top:3px}
+  .hero .copy .facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .hero .copy .facts span{font-size:10.5px;color:#c7d8ec;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:3px 8px;backdrop-filter:blur(6px)}
+  .hero .acts{position:absolute;right:16px;bottom:18px;z-index:3;display:flex;gap:7px}
+
+  /* ---------- 统计条 ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:11px}
+  .stat{position:relative;padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));overflow:hidden}
+  .stat .k{font-size:10px;color:var(--dim);letter-spacing:.09em;text-transform:uppercase;font-weight:600}
+  .stat .v{font-size:24px;font-weight:680;letter-spacing:-.02em;line-height:1.25;margin-top:5px;color:#eef5ff}
+  .stat .v small{font-size:11px;color:var(--muted);font-weight:500;margin-left:3px;letter-spacing:0}
+  .stat .d{font-size:9.5px;color:#5f7292;margin-top:2px}
+  .stat .d.up{color:#7fe6d6}
+  .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(110,231,255,.7),transparent);opacity:.65}
+
+  /* ---------- 区块容器 ---------- */
+  .block{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgba(255,255,255,.026),rgba(255,255,255,.008));padding:14px}
+  .block-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+  .block-head .t{font-size:12.5px;font-weight:650;color:#dbe7f8;display:flex;align-items:center;gap:8px}
+  .block-head .t em{font-style:normal;font-size:9.5px;color:var(--dim);letter-spacing:.08em;font-weight:500}
+  .link{font-size:10.5px;color:#8adff2;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+
+  .home-grid{display:grid;grid-template-columns:1fr 236px;gap:11px;margin-top:11px;align-items:stretch}
+  .home-grid>.block:last-child{display:flex;flex-direction:column}
+  @media(max-width:900px){.home-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+
+  .target-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+  .tcard{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:#0a101c}
+  .tcard .img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block;filter:brightness(.9) saturate(1.05)}
+  .tcard .ov{position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,9,16,.97) 0%,rgba(5,9,16,.88) 22%,rgba(5,9,16,.4) 52%,transparent 78%)}
+  .tcard .txt{position:absolute;left:9px;right:9px;bottom:9px}
+  .tcard .txt b{display:block;font-size:12px;font-weight:650;color:#eef5ff;letter-spacing:.01em}
+  .tcard .txt small{display:block;font-size:9.5px;color:#9cb2cc;margin-top:2px}
+  .tcard .star{position:absolute;right:7px;top:6px;width:18px;height:18px;border-radius:5px;background:rgba(6,10,18,.55);border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f5c26b;backdrop-filter:blur(4px)}
+  .tcard .new{position:absolute;left:7px;top:6px;font-size:8px;letter-spacing:.08em;color:#b9f1fb;background:rgba(8,13,24,.7);border:1px solid rgba(110,231,255,.35);border-radius:4px;padding:1px 5px}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .wd{font-size:8px;color:#4f6180;text-align:center;letter-spacing:.06em;padding-bottom:1px}
+  .cal .d{height:23px;border-radius:5px;border:1px solid rgba(150,180,220,.07);background:rgba(255,255,255,.018);display:flex;align-items:center;justify-content:center;font-size:9px;color:#61738f}
+  .cal .d.on{background:rgba(110,231,255,.14);border-color:rgba(110,231,255,.4);color:#bff3ff;font-weight:600;box-shadow:0 0 12px -4px rgba(110,231,255,.55)}
+  .cal .d.today{background:rgba(167,139,250,.18);border-color:rgba(167,139,250,.5);color:#d8cdff;font-weight:600}
+  .cal .d.mute{opacity:.35}
+  .mini-list{display:flex;flex-direction:column;gap:5px;margin-top:11px}
+  .home-grid>.block:last-child .mini-list{margin-top:auto;padding-top:11px}
+  .night-head{font-size:9.5px;color:#5f7292;letter-spacing:.08em;margin:13px 0 3px;padding-top:11px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .night-head .link{font-size:9.5px}
+  .night-list{display:flex;flex-direction:column}
+  .night-list .nr{display:flex;align-items:center;gap:8px;font-size:10px;color:#9fb2ce;padding:7px 0;border-bottom:1px dashed rgba(150,180,220,.09)}
+  .night-list .nr:last-child{border-bottom:none}
+  .night-list .nr .dd{flex:0 0 36px;font-family:var(--mono);font-size:9.5px;color:#7d90ae}
+  .night-list .nr .loc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .night-list .nr b{margin-left:auto;font-size:10px;color:#cfe0f7;font-weight:600}
+  .mini-list .it{display:flex;align-items:center;gap:7px;font-size:10px;color:#9fb2ce;padding:5px 7px;border-radius:6px;background:rgba(255,255,255,.025);border:1px solid rgba(150,180,220,.07)}
+  .mini-list .it b{margin-left:auto;font-size:10.5px;color:#dbe7f8;font-weight:600}
+
+  .sub-head{display:flex;align-items:center;gap:9px;margin:13px 0 9px;padding-top:12px;border-top:1px solid var(--line)}
+  .sub-head .t{font-size:12.5px;font-weight:650;color:#dbe7f8}
+  .sub-head .meta{font-size:9.5px;color:#5f7292}
+  .sub-head .link{margin-left:auto}
+
+  .ns-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .ns-strip .it{position:relative;aspect-ratio:16/9;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+  .ns-strip .it img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.78)}
+  .ns-strip .it::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,8,14,.9),rgba(4,8,14,.15) 46%,transparent 66%);pointer-events:none}
+  .ns-strip .it .l{position:absolute;left:10px;bottom:9px;z-index:2;font-size:12px;color:#e8f2ff;font-weight:600;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+  .ns-strip .it .l small{display:block;font-size:9.5px;color:#a7bdd8;font-weight:400;margin-top:2px}
+  .ns-strip .it .n{position:absolute;right:10px;top:8px;z-index:2;font-family:var(--mono);font-size:10px;color:#a9c0da;background:rgba(6,10,18,.5);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:1px 5px;backdrop-filter:blur(4px)}
+
+  /* ---------- 深空详情 ---------- */
+  .detail{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:20px 22px}
+  @media(max-width:900px){.detail{grid-template-columns:1fr}}
+  .celest{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.008));overflow:hidden;align-self:start}
+  .celest .cover{position:relative;height:168px}
+  .celest .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .celest .cover::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,9,16,.92),transparent 55%)}
+  .celest .cover .cn{position:absolute;left:13px;bottom:10px;z-index:2}
+  .celest .cover .cn b{display:block;font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .celest .cover .cn small{font-size:9.5px;color:#a9bfd9;letter-spacing:.04em}
+  .celest .cover .src{position:absolute;right:9px;bottom:8px;z-index:2;font-size:8px;color:#93a9c6;background:rgba(6,10,18,.6);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:2px 5px}
+  .celest .body{padding:12px 13px 13px}
+  .celest .desc{font-size:10.5px;line-height:1.65;color:#a9bad3;margin:7px 0 11px}
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+  .kv-grid .kv .k{font-size:8.5px;letter-spacing:.1em;color:#5f7292;text-transform:uppercase}
+  .kv-grid .kv .v{font-size:11px;color:#dbe7f8;font-weight:600;margin-top:1px}
+  .celest .tools{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap}
+
+  .works-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .works-head .sum{font-size:11px;color:#9fb2ce}
+  .works-head .sum b{color:#e9f2ff;font-weight:650}
+  .works-head .right{margin-left:auto;display:flex;gap:5px}
+  .night-group{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);padding:9px 10px 10px;margin-bottom:9px}
+  .night-group .gh{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#a9bfd9;margin-bottom:8px}
+  .night-group .gh b{color:#dbe7f8;font-weight:600;font-size:11px}
+  .night-group .gh .sep{color:#3f5170}
+  .night-group .gh .more{margin-left:auto;color:#6f82a0;font-size:9.5px}
+  .thumbs{display:flex;flex-wrap:wrap;gap:7px;align-items:flex-start}
+  .thumbs .shot{height:124px;width:auto;flex:0 0 auto;aspect-ratio:var(--ar,1)}
+  .thumbs .shot img{height:100%;object-position:center top}
+  .thumbs .shot.raw{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.025);border:1px dashed var(--line-2);box-shadow:none}
+  .thumbs .shot .ph-cap,.work-row .gallery .ph-cap{opacity:0;transition:opacity .18s}
+  .thumbs .shot:hover .ph-cap,.work-row .gallery .shot:hover .ph-cap{opacity:1}
+  .thumbs .ph-cap span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .empty-line{border:1px dashed var(--line-2);border-radius:9px;padding:10px 12px;font-size:10.5px;color:#6f82a0;display:flex;align-items:center;gap:8px}
+
+  /* ---------- 星野 ---------- */
+  .tabs{display:flex;gap:5px;padding:3px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid var(--line);width:fit-content}
+  .tab{height:27px;padding:0 12px;border-radius:7px;font-size:11.5px;color:#8fa2be;display:flex;align-items:center;gap:6px}
+  .tab b{font-size:9.5px;color:#63758f;font-weight:600}
+  .tab.on{background:rgba(110,231,255,.14);border:1px solid rgba(110,231,255,.32);color:#bdf4ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  .tab.on b{color:#8adff2}
+  .ns-layout{display:grid;grid-template-columns:1fr 258px;gap:13px;padding:20px 22px}
+  @media(max-width:900px){.ns-layout{grid-template-columns:1fr}}
+  .work-row{border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.022);padding:10px 11px;margin-bottom:9px}
+  .work-row .r1{display:flex;align-items:center;gap:7px;font-size:10px;color:#8fa6c4;margin-bottom:8px}
+  .work-row .r1 b{color:#e2ecfa;font-weight:600;font-size:11.5px}
+  .work-row .r1 .sep{color:#3f5170}
+  .work-row .r1 .tagline{margin-left:auto;font-size:9px;color:#6f82a0}
+  .work-row .r1 .open-dir{margin-left:8px;font-size:9px;color:#8fd8ef;border:1px solid rgba(110,231,255,.22);background:rgba(110,231,255,.05);border-radius:4px;padding:1px 6px;letter-spacing:.02em;white-space:nowrap}
+  .work-row .gallery{display:flex;flex-wrap:wrap;gap:7px;align-items:flex-start}
+  .work-row .gallery .shot{height:124px;width:auto;flex:0 0 auto;aspect-ratio:var(--ar,1.5)}
+  .work-row .gallery .shot img{height:100%;object-position:center top}
+  .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
+  .play i{width:26px;height:26px;border-radius:50%;background:rgba(6,10,18,.62);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#eaf6ff;font-size:9px;font-style:normal;padding-left:2px}
+  .dur{position:absolute;right:5px;bottom:5px;z-index:3;font-family:var(--mono);font-size:8px;color:#dbe7f8;background:rgba(4,7,13,.76);border-radius:3px;padding:1px 4px}
+  .record{border:1px solid var(--line);border-radius:11px;background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.008));padding:12px;align-self:start}
+  .record .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+  .record .rh b{font-size:11.5px;color:#e2ecfa;font-weight:650}
+  .record .rh span{font-size:8px;letter-spacing:.1em;color:#5f7292;text-transform:uppercase}
+  .rec-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed rgba(150,180,220,.1);font-size:10.5px}
+  .rec-row:last-of-type{border-bottom:none}
+  .rec-row .k{color:#7d90ae}
+  .rec-row .v{color:#dbe7f8;text-align:right;font-weight:500}
+  .rec-row .v.miss{color:#6f82a0;font-style:italic}
+  .rec-row .v.mono{font-family:var(--mono);font-size:9.5px;color:#a9c0da}
+  .rec-row .v .tag{margin-left:5px;vertical-align:1px}
+  .record .rt{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+  .record .rt .btn{flex:1;min-width:0;padding:0 6px}
+
+  /* ---------- 表格 ---------- */
+  .tbl-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.012)}
+  table{width:100%;border-collapse:collapse;font-size:10.5px;min-width:100%}
+  th{text-align:left;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:#7d90ae;font-weight:600;padding:8px 10px;background:rgba(255,255,255,.032);border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid rgba(150,180,220,.07);color:#a9bad3;white-space:nowrap;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:rgba(110,231,255,.035)}
+  td .fn{color:#dbe7f8;font-size:10.5px}
+  td .sub{display:block;color:#5f7292;font-size:8.5px;margin-top:1px}
+  .thumb-sm{width:26px;height:26px;border-radius:5px;object-fit:cover;display:block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .thumb-vid{width:26px;height:26px;border-radius:5px;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.3);display:flex;align-items:center;justify-content:center;color:#cdc1ff;font-size:8px}
+  .chk{width:12px;height:12px;border-radius:3px;border:1px solid #3d4f6c;background:rgba(255,255,255,.03);display:inline-block;vertical-align:middle}
+  .chk.on{background:rgba(110,231,255,.85);border-color:rgba(110,231,255,.9);position:relative}
+  .chk.on::after{content:"";position:absolute;left:3px;top:0.5px;width:3px;height:6px;border:solid #05131a;border-width:0 1.5px 1.5px 0;transform:rotate(42deg)}
+  .bulkbar{display:flex;align-items:center;gap:7px;margin-top:9px;padding:8px 10px;border-radius:9px;border:1px solid rgba(110,231,255,.24);background:rgba(110,231,255,.055)}
+  .bulkbar .cnt{font-size:10.5px;color:#bdf4ff;font-weight:600}
+  .bulkbar .cnt small{color:#7fa7bd;font-weight:400;margin-left:4px}
+
+  /* ---------- 同步 ---------- */
+  .sync-grid{display:grid;grid-template-columns:226px 1fr;gap:14px;padding:20px 22px}
+  @media(max-width:900px){.sync-grid{grid-template-columns:1fr}}
+  .conn{border:1px solid rgba(94,234,212,.22);border-radius:11px;background:linear-gradient(180deg,rgba(94,234,212,.06),rgba(94,234,212,.012));padding:12px}
+  .conn .ch{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#d8fff7;font-weight:600}
+  .conn .led{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(94,234,212,.9)}
+  .conn .meta2{font-size:9.5px;color:#86a9b6;line-height:1.8;margin-top:7px}
+  .conn .meta2 b{color:#cfeee9;font-weight:600}
+  .opt{border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.022);padding:11px 12px;margin-top:9px}
+  .opt .oh{font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#5f7292;font-weight:600;margin-bottom:8px}
+  .opt .or{display:flex;align-items:flex-start;gap:7px;font-size:10px;color:#b3c4db;padding:4px 0;line-height:1.5}
+  .opt .or small{display:block;color:#6f82a0;font-size:9px}
+  .opt .or .chk{margin-top:2px;flex:0 0 12px}
+  .precheck{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;border:1px solid rgba(94,234,212,.2);background:rgba(94,234,212,.045);font-size:10.5px;color:#a6ded7;margin-top:8px}
+  .precheck b{color:#d8fff7}
+  .progress{height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:7px}
+  .progress i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 12px rgba(110,231,255,.6)}
+  .result-hero{display:flex;align-items:center;gap:13px;padding:15px 16px;border-radius:12px;border:1px solid rgba(94,234,212,.24);background:linear-gradient(120deg,rgba(94,234,212,.09),rgba(110,231,255,.035));margin:14px 0 11px}
+  .result-hero .ic{width:36px;height:36px;border-radius:50%;background:rgba(94,234,212,.14);border:1px solid rgba(94,234,212,.35);display:flex;align-items:center;justify-content:center;color:#9ff7e8;font-size:15px;flex:0 0 36px}
+  .result-hero .tx b{display:block;font-size:13.5px;font-weight:650;color:#eafffb}
+  .result-hero .tx small{font-size:10px;color:#8fb5b2}
+  .result-hero .sp{margin-left:auto;text-align:right}
+  .result-hero .sp b{display:block;font-size:19px;font-weight:700;color:#d8fff7;letter-spacing:-.02em}
+  .result-hero .sp small{font-size:8.5px;color:#7fa7a4;letter-spacing:.08em}
+
+  /* ---------- 历史 ---------- */
+  .hfilter{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:20px 22px 0}
+  .sel{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:10.5px;color:#a9bad3}
+  .sel svg{width:9px;height:9px;opacity:.6}
+  .pager{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:10px;color:#7d90ae}
+  .pager .pg{margin-left:auto;display:flex;gap:5px}
+  .pager .pg .btn{height:26px;padding:0 9px;font-size:10px}
+
+  /* ---------- 查看器 ---------- */
+  .viewer{display:flex;background:#03060c;min-height:430px}
+  .viewer .stage{flex:1;min-width:0;display:flex;flex-direction:column;padding:12px 12px 10px;position:relative;background:
+      radial-gradient(600px 300px at 50% 40%,rgba(110,231,255,.045),transparent 70%),#04070d}
+  .viewer .stage .top{display:flex;align-items:center;gap:8px;font-size:9.5px;color:#71849f;margin-bottom:9px}
+  .viewer .stage .top .nm{color:#c7d8ec}
+  .viewer .stage .top .tools{margin-left:auto;display:flex;gap:5px}
+  .viewer .canvas{flex:1;border-radius:8px;overflow:hidden;position:relative;min-height:250px}
+  .viewer .canvas img{width:100%;height:100%;object-fit:contain;background:#02040a}
+  .viewer .film{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:9px}
+  .viewer .film .shot{height:40px;opacity:.55}
+  .viewer .film .shot.cur{opacity:1;box-shadow:inset 0 0 0 1px rgba(110,231,255,.7),0 0 14px -4px rgba(110,231,255,.5)}
+  .drawer{width:272px;flex:0 0 272px;border-left:1px solid var(--line);background:rgba(9,14,24,.92);padding:14px 13px;display:flex;flex-direction:column}
+  .drawer .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .drawer .dh b{font-size:11.5px;font-weight:650;color:#e2ecfa}
+  .drawer .dh span{font-size:8.5px;color:#5f7292;letter-spacing:.06em}
+  .fld{padding:7px 0;border-bottom:1px dashed rgba(150,180,220,.1)}
+  .fld .k{display:flex;align-items:center;gap:5px;font-size:8.5px;letter-spacing:.07em;color:#6f82a0;text-transform:uppercase;margin-bottom:2px}
+  .fld .v{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;color:#dbe7f8}
+  .fld .v.miss{color:#6f82a0;font-style:italic}
+  .fld .star-r{color:#f5c26b;letter-spacing:1px;font-size:9px}
+  .drawer .dfoot{margin-top:auto;display:flex;gap:6px;padding-top:12px}
+  .drawer .dfoot .btn{flex:1}
+  .panel-note{position:absolute;right:14px;top:14px;font-size:9px;color:#6f82a0;background:rgba(6,10,18,.7);border:1px solid var(--line);border-radius:5px;padding:3px 6px;backdrop-filter:blur(6px)}
+
+  /* ---------- 设计系统 ---------- */
+  .ds-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:14px 0 4px}
+  @media(max-width:900px){.ds-grid{grid-template-columns:repeat(2,1fr)}}
+  .sw{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .sw .chipc{height:54px}
+  .sw .info{padding:8px 9px}
+  .sw .info b{display:block;font-size:10.5px;color:#e2ecfa;font-weight:600}
+  .sw .info code{display:block;font-size:9px;color:#7d90ae;background:none;border:none;padding:0;margin-top:2px}
+  .sw .info small{display:block;font-size:9px;color:#5f7292;margin-top:2px}
+
+  .typerow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(150,180,220,.08)}
+  .typerow .demo{color:#eef5ff;letter-spacing:-.02em}
+  .typerow .lab{font-family:var(--mono);font-size:9.5px;color:#6f82a0;white-space:nowrap;text-align:right}
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:820px){.comp-grid{grid-template-columns:1fr}}
+  .comp{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);padding:13px}
+  .comp .ch{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#5f7292;font-weight:600;margin-bottom:10px}
+  .comp .row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+
+  .anno{margin:0 0 26px;padding-left:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;font-size:11.5px;color:#8fa2be}
+  @media(max-width:780px){.anno{grid-template-columns:1fr}}
+  .anno li{display:flex;gap:7px;margin:0;line-height:1.6}
+  .anno li::before{content:"—";color:#3f5170;flex:0 0 auto}
+
+  footer{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim)}
+  /* ---------- 面包屑与页面工具条 ---------- */
+  .crumb{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#6f82a0;min-width:0}
+  .crumb b{color:#dbe7f8;font-weight:600}
+  .crumb .sep{color:#3f5170}
+  .crumb .path{color:#8fa2be;font-family:var(--mono);font-size:9.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .filterbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .selbox{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 9px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:10.5px;color:#a9bad3;white-space:nowrap}
+  .selbox svg{width:9px;height:9px;opacity:.55}
+  .selbox.on{border-color:rgba(110,231,255,.32);background:rgba(110,231,255,.08);color:#bdf4ff}
+  .divider{width:1px;height:18px;background:var(--line);margin:0 2px}
+
+  /* ---------- 首页补充 ---------- */
+  .moon-row{display:flex;align-items:center;justify-content:space-between;font-size:9.5px;color:#7d90ae;margin-bottom:7px}
+  .moon{display:flex;align-items:center;gap:6px;color:#b9c8de}
+  .moon .disc{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#f4e7c6,#cfc4a8 58%,#4a4a52 59%,#1a1e28 100%);box-shadow:0 0 8px -2px rgba(245,194,107,.5)}
+  .mini-list .it .dot2{width:5px;height:5px;border-radius:50%;flex:0 0 5px}
+  .mini-list .it .dot2.g{background:var(--green);box-shadow:0 0 6px rgba(94,234,212,.8)}
+  .mini-list .it .dot2.a{background:var(--amber);box-shadow:0 0 6px rgba(245,194,107,.8)}
+
+  /* ---------- 通用列表页 ---------- */
+  .list-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+  .tool-text{font-size:10px;color:#6f82a0}
+  .tool-text b{color:#c7d8ec;font-weight:600}
+  .inline-legend{display:flex;gap:12px;font-size:9.5px;color:#6f82a0;flex-wrap:wrap}
+  .inline-legend span{display:flex;align-items:center;gap:5px}
+  .inline-legend i{width:6px;height:6px;border-radius:50%;display:inline-block}
+
+  /* ---------- 空态 / 提示 ---------- */
+  .empty{border:1px dashed var(--line-2);border-radius:11px;padding:22px;text-align:center;color:#7d90ae;font-size:11px}
+  .empty b{display:block;color:#cfdcee;font-size:12.5px;font-weight:600;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>High-Fidelity Visual · 高保真视觉稿</div>
+  <h1>星空摄影档案管理软件
+    <span>深色天文界面 · 作品优先 · 双主线</span>
+  </h1>
+  <p class="sub">按线框 v0.2 的结构做视觉升级：<strong>深空</strong>与<strong>星野</strong>两条主线各自成页，用真实成片填充。这一版确定配色、字体层级、卡片与表格质感、状态标签和动效节奏，确认后再进入可点击原型。</p>
+  <div class="meta">
+    <span class="chip">版本 <b>v1.3（视觉稿）</b></span>
+    <span class="chip">本版改动 <b>打开文件夹 + 地点改名同步</b></span>
+    <span class="chip">依据 <b>线框 v0.2 / PRD v0.7</b></span>
+    <span class="chip">配图 <b>本地真实成片 141 张</b></span>
+    <span class="chip">窗口 <b>1440 × 900 基准</b></span>
+    <span class="chip">主题 <b>深色 · 夜间低亮度</b></span>
+    <span class="chip">日期 <b>2026-11-23</b></span>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#direction">视觉基调</a>
+  <a href="#language">设计语言</a>
+  <a href="#shell">全局框架</a>
+  <a href="#home">首页</a>
+  <a href="#target">深空详情</a>
+  <a href="#nightscape">星野</a>
+  <a href="#library">素材库</a>
+  <a href="#sync">同步</a>
+  <a href="#history">历史记录</a>
+  <a href="#viewer">查看器</a>
+  <a href="#handoff">落地说明</a>
+</div></nav>
+
+<!-- 01 视觉基调 -->
+<section id="direction">
+  <h2><span class="no">01</span>视觉基调</h2>
+  <p class="lead">界面像一间关灯的暗房：背景接近黑，但不死黑；照片是唯一的高饱和区域；颜色只用来表达状态，不用于装饰。</p>
+
+  <div class="comp-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="comp">
+      <div class="ch">Dark Room · 暗房感</div>
+      <h4>让照片发光</h4>
+      <p style="margin:0;font-size:12px;color:#9fb2ce;line-height:1.7">底色 <code>#05070e</code>，面板 <code>#0b1220</code>，两者只差一个层级。面板靠 1px 低对比描边和极轻的内高光分层，不用重阴影。照片四周留 1px 内描边，避免深色吞掉边缘。</p>
+    </div>
+    <div class="comp">
+      <div class="ch">Signal Color · 状态色</div>
+      <h4>颜色即含义</h4>
+      <p style="margin:0;font-size:12px;color:#9fb2ce;line-height:1.7">星青＝可点击 / 当前 / 已连接；暗紫＝信息与来源标记；暖金＝需要注意；玫红＝危险或失败；薄荷绿＝成功。<strong>同屏最多出现两种状态色</strong>，避免仪表盘感。</p>
+    </div>
+    <div class="comp">
+      <div class="ch">Quiet Interface · 安静</div>
+      <h4>控件退后</h4>
+      <p style="margin:0;font-size:12px;color:#9fb2ce;line-height:1.7">主操作每屏只保留一个（同步 / 保存 / 开始）；其余按钮降为幽灵态。滚动时不出现悬浮工具栏，批量操作固定在列表底部。数字用等宽字形，避免跳动。</p>
+    </div>
+  </div>
+
+  <div class="note"><b>与线框的差异：</b>结构、页面与信息层级完全沿用 v0.2，只补三件事——① 真实照片与缩略图；② 明确的字号 / 间距 / 圆角刻度；③ 悬浮、选中、来源标签与进度等状态的具体样式。</div>
+</section>
+
+<!-- 02 设计语言 -->
+<section id="language">
+  <h2><span class="no">02</span>设计语言</h2>
+  <p class="lead">一套 5 色状态 + 4 级中性色 + 5 档圆角 + 6 级字号，够用且不容易失控。所有页面共用这套刻度。</p>
+
+  <h3><span class="num">2.1</span>色彩</h3>
+  <div class="ds-grid">
+    <div class="sw"><div class="chipc" style="background:#05070e;border-bottom:1px solid var(--line)"></div><div class="info"><b>Canvas 底色</b><code>#05070E</code><small>窗口背景</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#0b1220"></div><div class="info"><b>Panel 面板</b><code>#0B1220</code><small>卡片 / 侧栏</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#131f32"></div><div class="info"><b>Raised 浮层</b><code>#131F32</code><small>悬浮 / 抽屉</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#6ee7ff"></div><div class="info"><b>Cyan 主操作</b><code>#6EE7FF</code><small>可点击 / 当前</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#a78bfa"></div><div class="info"><b>Violet 信息</b><code>#A78BFA</code><small>来源 / 自动值</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#f5c26b"></div><div class="info"><b>Amber 注意</b><code>#F5C26B</code><small>待确认 / 中断</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#fb7185"></div><div class="info"><b>Rose 危险</b><code>#FB7185</code><small>删除 / 失败</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#5eead4"></div><div class="info"><b>Mint 成功</b><code>#5EEAD4</code><small>已连接 / 通过</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#e9f0fc"></div><div class="info"><b>Text 主文字</b><code>#E9F0FC</code><small>标题与数值</small></div></div>
+    <div class="sw"><div class="chipc" style="background:#8496b4"></div><div class="info"><b>Muted 次文字</b><code>#8496B4</code><small>说明 / 标签</small></div></div>
+  </div>
+
+  <h3><span class="num">2.2</span>字体与层级</h3>
+  <div class="comp" style="padding:6px 16px 12px">
+    <div class="typerow"><div class="demo" style="font-size:28px;font-weight:700">M42 猎户座大星云</div><div class="lab">页面标题 · 28 / 700</div></div>
+    <div class="typerow"><div class="demo" style="font-size:20px;font-weight:650">最近作品</div><div class="lab">区块标题 · 20 / 650</div></div>
+    <div class="typerow"><div class="demo" style="font-size:14px;font-weight:600">本次同步 5.1 GB · 全部校验通过</div><div class="lab">正文强调 · 14 / 600</div></div>
+    <div class="typerow"><div class="demo" style="font-size:12px;color:#b9c8de;font-weight:400">DWARF mini · 30 s × 380 帧 · 累计 3 h 10 m</div><div class="lab">正文 · 12 / 400</div></div>
+    <div class="typerow" style="border-bottom:none"><div class="demo" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#7d90ae">Last Sync · 2026-11-23 17:53</div><div class="lab">标签 · 9.5 / 600 / +12%</div></div>
+  </div>
+
+  <h3><span class="num">2.3</span>圆角、间距与描边</h3>
+  <div class="comp-grid">
+    <div class="comp">
+      <div class="ch">Radius</div>
+      <div class="row" style="gap:10px;align-items:flex-end">
+        <div style="text-align:center"><div style="width:46px;height:34px;border:1px solid var(--line-2);border-radius:6px;background:rgba(255,255,255,.03)"></div><div class="lab" style="font-size:9px;color:#6f82a0;margin-top:4px">6 小控件</div></div>
+        <div style="text-align:center"><div style="width:52px;height:38px;border:1px solid var(--line-2);border-radius:9px;background:rgba(255,255,255,.03)"></div><div class="lab" style="font-size:9px;color:#6f82a0;margin-top:4px">9 按钮 / 图</div></div>
+        <div style="text-align:center"><div style="width:58px;height:42px;border:1px solid var(--line-2);border-radius:12px;background:rgba(255,255,255,.03)"></div><div class="lab" style="font-size:9px;color:#6f82a0;margin-top:4px">12 卡片</div></div>
+        <div style="text-align:center"><div style="width:64px;height:46px;border:1px solid var(--line-2);border-radius:16px;background:rgba(255,255,255,.03)"></div><div class="lab" style="font-size:9px;color:#6f82a0;margin-top:4px">16 画布</div></div>
+      </div>
+      <p style="margin:12px 0 0;font-size:11px;color:#8496b4">图片统一 8–9px，卡片 12px，页面画布 16px。不做全圆角卡片。</p>
+    </div>
+    <div class="comp">
+      <div class="ch">Spacing · 4 的倍数</div>
+      <div class="row" style="gap:8px;align-items:flex-end">
+        <div style="text-align:center"><div style="width:4px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">4</div></div>
+        <div style="text-align:center"><div style="width:8px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">8</div></div>
+        <div style="text-align:center"><div style="width:12px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">12</div></div>
+        <div style="text-align:center"><div style="width:16px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">16</div></div>
+        <div style="text-align:center"><div style="width:22px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">22</div></div>
+        <div style="text-align:center"><div style="width:28px;height:26px;background:rgba(110,231,255,.35)"></div><div style="font-size:8.5px;color:#6f82a0;margin-top:4px">28</div></div>
+      </div>
+      <p style="margin:12px 0 0;font-size:11px;color:#8496b4">内边距 10–14，卡片间距 9–13，页面留白 20–22。表格行高 32，列表头 26。</p>
+    </div>
+  </div>
+
+  <h3><span class="num">2.4</span>组件状态</h3>
+  <div class="comp-grid">
+    <div class="comp">
+      <div class="ch">Buttons</div>
+      <div class="row" style="margin-bottom:9px">
+        <span class="btn primary">开始同步</span>
+        <span class="btn">取消</span>
+        <span class="btn ghost">在资源管理器中打开</span>
+        <span class="btn danger">删除 3 项</span>
+      </div>
+      <div class="row">
+        <span class="btn primary sm">保存</span>
+        <span class="btn sm">恢复自动值</span>
+        <span class="btn ghost sm">导出 CSV</span>
+        <span class="btn sm" style="opacity:.4">开始同步（未连接）</span>
+      </div>
+      <p style="margin:10px 0 0;font-size:10.5px;color:#6f82a0">主按钮带内高光与星青外发光；禁用态降到 40% 不透明并保留文案，不隐藏。</p>
+    </div>
+    <div class="comp">
+      <div class="ch">Pills &amp; Source Tags</div>
+      <div class="row" style="margin-bottom:8px">
+        <span class="pill ok"><i></i>已连接</span>
+        <span class="pill cyan"><i></i>新增</span>
+        <span class="pill warn"><i></i>待确认</span>
+        <span class="pill info"><i></i>待整理</span>
+        <span class="pill err"><i></i>缺失</span>
+        <span class="pill mute"><i></i>已排除</span>
+      </div>
+      <div class="row">
+        <span class="tag auto">自动</span>
+        <span class="tag manual">手工</span>
+        <span class="tag file">FITS</span>
+        <span class="tag file">EXIF</span>
+        <span class="tag file">水印</span>
+      </div>
+      <p style="margin:10px 0 0;font-size:10.5px;color:#6f82a0">状态用「点 + 文字」，不只靠颜色；来源标签固定在字段右侧，手工值额外带锁。</p>
+    </div>
+  </div>
+
+  <h3><span class="num">2.5</span>图片处理与动效</h3>
+  <div class="comp-grid">
+    <div class="comp">
+      <div class="ch">Image Treatment</div>
+      <div class="row" style="gap:9px">
+        <div class="shot" style="width:120px;height:74px"><img src="天文摄影照片/2026-10-06_M45_DWARFMINI_final_001.jpg" alt="M45 昴星团"></div>
+        <div class="shot" style="width:120px;height:74px"><img src="天文摄影照片/2026-06-27_NGC6888_DWARFMINI_final_001.jpeg" alt="NGC6888 眉月星云"></div>
+      </div>
+      <p style="margin:10px 0 0;font-size:10.5px;color:#6f82a0">圆角 9px；1px 内描边 <code>rgba(255,255,255,.09)</code>；分日期缩略图按原比例、不裁切，仅卡片封面裁切填充。悬停放大 1.045，时长 0.5s。</p>
+    </div>
+    <div class="comp">
+      <div class="ch">Motion · 克制</div>
+      <ul style="margin:0;padding-left:16px;font-size:10.5px;color:#9fb2ce;line-height:1.8">
+        <li>页面切换：120ms 淡入 + 4px 上移；不做横向滑动。</li>
+        <li>抽屉：220ms <code>cubic-bezier(.2,.7,.2,1)</code> 从右滑入。</li>
+        <li>悬停：边框提亮到 <code>rgba(150,180,220,.22)</code>，150ms。</li>
+        <li>进度条：数值变化 300ms 缓动；不循环闪光。</li>
+        <li>尊重「减少动态效果」系统设置，全部降为即时切换。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 03 全局框架 -->
+<section id="shell">
+  <h2><span class="no">03</span>全局框架</h2>
+  <p class="lead">左侧 204px 固定导航，顶部 56px 工具栏；导航分「浏览」与「管理」两组，同步常驻且自带设备状态点。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">星空档案 · 主窗口</span><span class="r">1440 × 900</span></div>
+    <div class="app">
+      <!-- 侧栏 -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.6l2.5 6.1 6.6.5-5 4.3 1.5 6.5L12 16.6 6.4 20l1.5-6.5-5-4.3 6.6-.5L12 2.6z" fill="rgba(110,231,255,.85)"/><circle cx="19" cy="5" r="1.2" fill="#a78bfa"/></svg>
+          </div>
+          <div class="name">星空档案<small>ASTRO ARCHIVE</small></div>
+        </div>
+
+        <div class="nav-label">浏览</div>
+        <div class="navi on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 10.5L12 3l9 7.5V21H3z"/></svg>
+          首页
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4.2"/><ellipse cx="12" cy="12" rx="9.5" ry="3.6" transform="rotate(-28 12 12)"/></svg>
+          深空 <span class="cnt">26</span>
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+          星野 <span class="cnt">20</span>
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9h17M8 3v4M16 3v4"/></svg>
+          夜次 <span class="cnt">34</span>
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M9 9.5V20"/></svg>
+          素材库 <span class="cnt">8,925</span>
+        </div>
+
+        <div class="nav-label" style="padding-top:16px">管理</div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 10l-3 3 3 3M17 10l3 3-3 3M5 13h14"/></svg>
+          同步 <span class="dot"></span>
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.5 2"/></svg>
+          历史记录
+        </div>
+        <div class="navi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="2.8"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M18 6l-1.4 1.4M7.4 16.6L6 18"/></svg>
+          设置
+        </div>
+
+        <div class="side-foot">
+          <div class="device">
+            <span class="led"></span>
+            <div style="flex:1;min-width:0">
+              <b>Dwarf mini 已连接</b>
+              F: · 剩余 412 GB
+              <div class="bar"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 主区 -->
+      <div class="main">
+        <div class="topbar">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+            搜索目标 / 文件名 / 夜次
+            <kbd>Ctrl F</kbd>
+          </div>
+          <div class="icon-btn" title="主题">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 13.2A8.2 8.2 0 019.8 3 8.5 8.5 0 1020 13.2z"/></svg>
+          </div>
+          <span class="btn primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 10l-3 3 3 3M17 10l3 3-3 3M5 13h14"/></svg>
+            同步
+          </span>
+        </div>
+        <div class="content">
+          <div class="page-head">
+            <div>
+              <div class="ph-t">Home</div>
+              <h3>今晚，从哪一张开始看？<span>内容区随导航切换</span></h3>
+            </div>
+            <div class="acts"><span class="pill mute"><i></i>上次同步 17:53</span></div>
+          </div>
+          <div class="hero" style="height:150px">
+            <img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt="M42">
+            <div class="copy" style="bottom:14px">
+              <div class="k">最近成片</div>
+              <div class="nm" style="font-size:20px">M42 猎户座大星云</div>
+            </div>
+          </div>
+          <div class="stats" style="margin-top:9px">
+            <div class="stat"><div class="k">深空目标</div><div class="v">26</div><div class="d">本月 +3</div></div>
+            <div class="stat"><div class="k">拍摄夜次</div><div class="v">34</div><div class="d">连续 6 周有记录</div></div>
+            <div class="stat"><div class="k">累计曝光</div><div class="v">90.9<small>h</small></div><div class="d">近 30 天 12.4 h</div></div>
+            <div class="stat"><div class="k">星野作品</div><div class="v">20</div><div class="d">银河 12 · 星轨 3 · 延时 5</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>导航宽度 204px</b>，可折叠为 56px 图标条；折叠状态记忆到设置。</span></li>
+    <li><i>2</i><span><b>同步常驻</b>：右侧圆点灰＝未连接、绿＝已连接、金＝有待处理；未连接时按钮 40% 透明。</span></li>
+    <li><i>3</i><span><b>搜索</b>占位文案写「目标 / 文件名 / 夜次」，回车跳素材库并带入筛选。</span></li>
+    <li><i>4</i><span><b>设备卡</b>固定侧栏底部，显示盘符、剩余空间与占用条，点击直达同步页。</span></li>
+    <li><i>5</i><span>切换页面保留滚动位置与筛选；导航当前项用 2px 星青左侧条 + 淡青底。</span></li>
+  </ul>
+</section>
+
+
+<!-- 04 首页 -->
+<section id="home">
+  <h2><span class="no">04</span>首页</h2>
+  <p class="lead">首屏只回答两件事：最近拍了什么、总共拍了多少。主视觉占掉三分之一屏，其余信息压成一条数字和一行目标卡。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">首页</span><span class="r">内容区 · 1200 × 760</span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span>星空档案</span><span class="sep">/</span><b>首页</b><span class="sep">·</span><span>2026-11-23 周一</span></div>
+        <div class="tb-right">
+          <span class="btn ghost sm">导入成片</span>
+          <span class="btn primary sm">同步</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- 主视觉 -->
+        <div class="hero">
+          <img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt="M42 猎户座大星云">
+          <div class="pin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4h6l1 7-4 9-4-9z"/></svg>
+            已置顶 · 最近成片
+          </div>
+          <div class="copy">
+            <div class="k">Deep Sky · 2026-11-21</div>
+            <div class="nm">M42 猎户座大星云</div>
+            <div class="en">Orion Nebula · 猎户座 · 1,344 光年</div>
+            <div class="facts">
+              <span>累计 3 h 51 m</span><span>DWARF mini</span><span>60 s × 231</span><span>12 张成片</span>
+            </div>
+          </div>
+          <div class="acts">
+            <span class="btn sm">信息</span>
+            <span class="btn primary sm">查看大图</span>
+          </div>
+        </div>
+
+        <!-- 统计条 -->
+        <div class="stats">
+          <div class="stat"><div class="k">深空目标</div><div class="v">26</div><div class="d up">本月 +3 个</div></div>
+          <div class="stat"><div class="k">拍摄夜次</div><div class="v">34</div><div class="d">连续 6 周有记录</div></div>
+          <div class="stat"><div class="k">深空累计曝光</div><div class="v">90.9<small>h</small></div><div class="d up">近 30 天 12.4 h</div></div>
+          <div class="stat"><div class="k">星野作品</div><div class="v">20</div><div class="d">银河 12 · 星轨 3 · 延时 5</div></div>
+        </div>
+
+        <!-- 目标 + 月历 -->
+        <div class="home-grid">
+          <div class="block">
+            <div class="block-head">
+              <div class="t">深空目标 <em>按最近拍摄</em></div>
+              <a class="link" href="#target">查看全部 →</a>
+            </div>
+            <div class="target-grid">
+              <div class="tcard">
+                <img class="img" src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt="M42">
+                <div class="ov"></div><div class="star">★</div>
+                <div class="txt"><b>M42 · 猎户座大星云</b><small>6 夜次 · 9.6 h</small></div>
+              </div>
+              <div class="tcard">
+                <img class="img" src="天文摄影照片/2026-11-20_IC434_DWARFMINI_final_001.jpg" alt="IC434">
+                <div class="ov"></div><div class="new">NEW</div>
+                <div class="txt"><b>IC434 · 马头星云</b><small>4 夜次 · 7.2 h</small></div>
+              </div>
+              <div class="tcard">
+                <img class="img" src="天文摄影照片/2026-10-06_M45_DWARFMINI_final_001.jpg" alt="M45">
+                <div class="ov"></div>
+                <div class="txt"><b>M45 · 昴星团</b><small>5 夜次 · 5.8 h</small></div>
+              </div>
+              <div class="tcard">
+                <img class="img" src="天文摄影照片/2026-10-05_NGC1499_DWARFMINI_final_001.jpeg" alt="NGC1499">
+                <div class="ov"></div>
+                <div class="txt"><b>NGC1499 · 加州星云</b><small>2 夜次 · 3.1 h</small></div>
+              </div>
+            </div>
+
+            <div class="sub-head">
+              <div class="t">星野作品</div>
+              <span class="meta">银河 12 · 星轨 3 · 延时 5</span>
+              <a class="link" href="#nightscape">查看全部 →</a>
+            </div>
+            <div class="ns-strip">
+              <div class="it">
+                <img src="天文摄影照片/2026-06-16_MILKYWAY_CANON_final_001.jpg" alt="银河">
+                <span class="n">12</span>
+                <div class="l">银河 <small>2026-06-16 · 冷湖</small></div>
+              </div>
+              <div class="it">
+                <img src="天文摄影照片/2026-01-12_STARTRAIL_CANON_final_001.jpg" alt="星轨">
+                <span class="n">3</span>
+                <div class="l">星轨 <small>含 1 段视频</small></div>
+              </div>
+              <div class="it">
+                <img src="天文摄影照片/2026-04-22_MILKYWAY_CANON_final_001.png" alt="延时">
+                <span class="n">5</span>
+                <div class="l">延时 <small>视频 4K · 30fps</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block-head">
+              <div class="t">夜次 <em>2026 年 11 月</em></div>
+              <a class="link" href="#history">全部 →</a>
+            </div>
+            <div class="moon-row">
+              <span class="moon"><span class="disc"></span>娥眉月 · 8%</span>
+              <span>4 个拍摄夜</span>
+            </div>
+            <div class="cal">
+              <div class="wd">一</div><div class="wd">二</div><div class="wd">三</div><div class="wd">四</div><div class="wd">五</div><div class="wd">六</div><div class="wd">日</div>
+              <div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d">1</div>
+              <div class="d">2</div><div class="d on">3</div><div class="d">4</div><div class="d on">5</div><div class="d">6</div><div class="d">7</div><div class="d">8</div>
+              <div class="d">9</div><div class="d">10</div><div class="d">11</div><div class="d on">12</div><div class="d">13</div><div class="d">14</div><div class="d">15</div>
+              <div class="d">16</div><div class="d">17</div><div class="d on">18</div><div class="d">19</div><div class="d on">20</div><div class="d on">21</div><div class="d">22</div>
+              <div class="d today">23</div><div class="d">24</div><div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d">28</div><div class="d">29</div>
+              <div class="d">30</div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div><div class="d mute"></div>
+            </div>
+            <div class="night-head"><span>最近夜次</span><a class="link" href="#history">全部 →</a></div>
+            <div class="night-list">
+              <div class="nr"><span class="dd">11-21</span><span class="loc">冷湖 · 赛什腾山</span><b>4.2 h</b></div>
+              <div class="nr"><span class="dd">11-20</span><span class="loc">冷湖 · 赛什腾山</span><b>3.6 h</b></div>
+              <div class="nr"><span class="dd">11-18</span><span class="loc">敦煌 · 雅丹</span><b>2.8 h</b></div>
+              <div class="nr"><span class="dd">11-12</span><span class="loc">冷湖 · 赛什腾山</span><b>3.1 h</b></div>
+            </div>
+            <div class="mini-list">
+              <div class="it"><span class="dot2 g"></span>待确认素材<b>3</b></div>
+              <div class="it"><span class="dot2 a"></span>收件箱待整理<b>12</b></div>
+              <div class="it"><span class="dot2" style="background:#8fa2be"></span>上次同步 17:53<b>5.1 GB</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>主视觉 268px 高</b>：图片 <code>object-fit:cover</code> + 左侧 92% 暗渐变；标题 27px，只在左下 400px 内排布。</span></li>
+    <li><i>2</i><span><b>置顶规则</b>：默认显示最近成片；任意作品可「设为封面」，左上角出现「已置顶」，可一键还原。</span></li>
+    <li><i>3</i><span><b>统计条</b>四项可点，分别落到深空 / 夜次 / 深空曝光筛选 / 星野；数字 24px，单位 11px。</span></li>
+    <li><i>4</i><span><b>目标卡固定 4:3</b>，比旧版 2.5:1 高出一倍；底部深色渐变既托住名称，也盖掉 Dwarf 成片的白条。</span></li>
+    <li><i>5</i><span><b>星野入口独立成组</b>：分组标题 + 三条 16:9 横幅，和深空目标卡明确区分，不再压成 64px 细条。</span></li>
+    <li><i>6</i><span><b>夜次卡与左栏同高</b>：月历 + 最近夜次 4 条 + 底部状态条；星青＝有拍摄，暗紫＝今天。</span></li>
+  </ul>
+</section>
+
+<!-- 05 深空详情 -->
+<section id="target">
+  <h2><span class="no">05</span>深空目标详情</h2>
+  <p class="lead">左栏是「天体名片」，右栏是「我的作品」。名片解释这是什么，作品区回答我拍成了什么样；两者都不抢对方的位置。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">深空 / M31 仙女座星系</span><span class="r">目标详情</span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><a class="link" href="#target" style="color:#8fa2be">深空</a><span class="sep">/</span><b>M31 仙女座星系</b><span class="sep">·</span><span>3 个夜次 · 4.2 h</span></div>
+        <div class="tb-right">
+          <span class="btn ghost sm">打开成片文件夹</span>
+          <span class="btn sm">标记最终版</span>
+        </div>
+      </div>
+
+      <div class="detail">
+        <!-- 天体名片 -->
+        <div class="celest">
+          <div class="cover">
+            <img src="天文摄影照片/2026-09-12_M31_DWARFMINI_final_001.jpeg" alt="M31 仙女座星系">
+            <div class="cn"><b>M31 · 仙女座星系</b><small>Andromeda Galaxy</small></div>
+            <span class="src">配图：本地成片</span>
+          </div>
+          <div class="body">
+            <div class="kv-grid">
+              <div class="kv"><div class="k">类型</div><div class="v">螺旋星系</div></div>
+              <div class="kv"><div class="k">星座</div><div class="v">仙女座</div></div>
+              <div class="kv"><div class="k">距离</div><div class="v">254 万光年</div></div>
+              <div class="kv"><div class="k">视星等</div><div class="v">3.44</div></div>
+            </div>
+            <p class="desc">北半球肉眼可见的最远天体之一，核心明亮、尘埃带清晰。适合中焦到广角，累计 1 小时以上就能拉出旋臂结构。</p>
+            <div class="tools">
+              <span class="btn ghost sm">编辑资料</span>
+              <span class="btn ghost sm">替换配图</span>
+              <span class="btn ghost sm">🔒 已锁定</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 我的作品 -->
+        <div>
+          <div class="works-head">
+            <div class="sum">共 <b>3</b> 个夜次 · <b>8</b> 张成片 · <b>4.2 h</b> · RAW <b>1,240</b> 帧</div>
+            <div class="right">
+              <span class="selbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>按夜次</span>
+              <span class="selbox">全部器材</span>
+            </div>
+          </div>
+
+          <div class="night-group">
+            <div class="gh">
+              <b>2026-09-12</b><span class="sep">·</span><span>DWARF mini</span><span class="sep">·</span><span>累计 1 h 25 m</span>
+              <span class="pill ok" style="margin-left:6px"><i></i>已完成</span>
+              <span class="more">3 张成片 · 447 光帧 ›</span>
+            </div>
+            <div class="thumbs">
+              <div class="shot hoverable" style="--ar:.955"><img src="天文摄影照片/2026-09-12_M31_DWARFMINI_final_001.jpeg" alt=""><div class="ph-cap"><span>final_001</span><span>★★★</span></div></div>
+              <div class="shot hoverable" style="--ar:1.764"><img src="天文摄影照片/2026-08-06_M31_DWARFMINI_final_001.jpeg" alt=""><div class="ph-cap"><span>合成版</span><span>★★★</span></div></div>
+              <div class="shot hoverable" style="--ar:1.907"><img src="天文摄影照片/2026-02-07_M31_DWARFMINI_final_002.jpg" alt=""><div class="ph-cap"><span>裁剪版</span><span>★★</span></div></div>
+              <div class="shot raw" style="--ar:.78">
+                <span style="font-size:9px;color:#6f82a0;text-align:center;line-height:1.5">RAW 光帧<br>447 帧</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="night-group">
+            <div class="gh">
+              <b>2026-08-06</b><span class="sep">·</span><span>DWARF mini</span><span class="sep">·</span><span>累计 1 h 10 m</span>
+              <span class="more">2 张成片 · 871 光帧 ›</span>
+            </div>
+            <div class="thumbs">
+              <div class="shot hoverable" style="--ar:1.764"><img src="天文摄影照片/2026-08-06_M31_DWARFMINI_final_001.jpeg" alt=""><div class="ph-cap"><span>final_001</span><span>★★</span></div></div>
+              <div class="shot hoverable" style="--ar:1.907"><img src="天文摄影照片/2026-02-07_M31_DWARFMINI_final_001.jpeg" alt=""><div class="ph-cap"><span>对比版</span><span>★★</span></div></div>
+            </div>
+          </div>
+
+          <div class="night-group" style="margin-bottom:0">
+            <div class="gh">
+              <b>2026-01-23</b><span class="sep">·</span><span>DWARF mini</span><span class="sep">·</span><span>45 m</span>
+              <span class="pill mute" style="margin-left:6px"><i></i>无原始帧</span>
+              <span class="more">仅 1 张成片 ›</span>
+            </div>
+            <div class="thumbs">
+              <div class="shot hoverable" style="--ar:1.333"><img src="天文摄影照片/2026-01-23_M31_CANON_final_001.jpg" alt=""><div class="ph-cap"><span>final_001</span><span>★</span></div></div>
+            </div>
+          </div>
+
+          <div class="empty-line" style="margin-top:9px">
+            <span style="color:#5eead4">＋</span> 把新的成片拖到这里，自动归到 M31
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>名片宽 300px</b>，封图 168px；来源角标固定右下，手工替换后显示锁图标且联网更新不覆盖。</span></li>
+    <li><i>2</i><span><b>编号 + 中文名</b>为第一层级，英文名第二层；结构化字段用两列 KV，不写成一段话。</span></li>
+    <li><i>3</i><span><b>作品按夜次倒序</b>，缩略图固定 <b>124px 高</b>、宽度随原图比例，完整画面不裁切；竖幅自然变窄、横幅自然变宽。</span></li>
+    <li><i>4</i><span><b>RAW 用虚线块</b>而不是假缩略图，明确区分「成片」与「原始帧」。</span></li>
+    <li><i>5</i><span>无原始帧的夜次标「无原始帧」，仍可查看成片，不隐藏。</span></li>
+    <li><i>6</i><span>低频操作（合并目标 / 最终版 / 打开成片文件夹）收在右上角；按钮直接打开 <code>目标/成片</code>，目录不存在时提示重新定位。</span></li>
+  </ul>
+</section>
+
+<!-- 06 星野 -->
+<section id="nightscape">
+  <h2><span class="no">06</span>星野</h2>
+  <p class="lead">与深空并列的第二条主线。银河、星轨、延时三个页签，按夜次聚成作品组；右侧记录卡记录地面信息，视频就地播放。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">星野 · 银河</span><span class="r">2026 年 · 20 组作品</span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span>星空档案</span><span class="sep">/</span><b>星野</b><span class="sep">·</span><span>不参与深空曝光统计</span></div>
+        <div class="tb-right">
+          <span class="selbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>按夜次排序</span>
+          <span class="btn ghost sm">导入作品</span>
+        </div>
+      </div>
+
+      <div class="ns-layout">
+        <div>
+          <div class="list-top">
+            <div class="tabs">
+              <span class="tab on">银河 <b>12</b></span>
+              <span class="tab">星轨 <b>3</b></span>
+              <span class="tab">延时 <b>5</b></span>
+            </div>
+            <div class="filterbar" style="margin-left:auto">
+              <span class="selbox">全部地点</span>
+              <span class="selbox">全部器材</span>
+            </div>
+          </div>
+
+          <!-- 银河组 -->
+          <div class="work-row">
+            <div class="r1">
+              <b>2026-06-16</b><span class="sep">·</span><span>CANON 15mm</span><span class="sep">·</span><span>银河</span>
+              <span class="pill ok" style="margin-left:5px"><i></i>已完成</span>
+              <span class="tagline">4 张成片 · 1 张接片</span>
+              <span class="open-dir">打开文件夹</span>
+            </div>
+            <div class="gallery">
+              <div class="shot hoverable" style="--ar:2.066"><img src="天文摄影照片/2026-06-16_MILKYWAY_CANON_final_001.jpg" alt="银河"><div class="ph-cap"><span>final_001</span><span>★★★</span></div></div>
+              <div class="shot hoverable" style="--ar:2.066"><img src="天文摄影照片/2026-06-16_MILKYWAY_CANON_final_002.jpg" alt="银河"><div class="ph-cap"><span>final_002</span><span>★★</span></div></div>
+              <div class="shot hoverable" style="--ar:.667"><img src="天文摄影照片/2025-07-03_MILKYWAY_CANON_final_001.jpg" alt="银河"><div class="ph-cap"><span>final_003</span><span>★★</span></div></div>
+              <div class="shot hoverable" style="--ar:1.978"><img src="天文摄影照片/2026-04-19_MILKYWAY_CANON_final_001.jpg" alt="银河"><div class="ph-cap"><span>接片</span><span>★★★</span></div></div>
+            </div>
+          </div>
+
+          <!-- 星轨组 -->
+          <div class="work-row">
+            <div class="r1">
+              <b>2026-01-12</b><span class="sep">·</span><span>CANON 15mm</span><span class="sep">·</span><span>星轨</span>
+              <span class="tagline">1 张成片 + 1 段视频</span>
+              <span class="open-dir">打开文件夹</span>
+            </div>
+            <div class="gallery">
+              <div class="shot hoverable" style="--ar:1.5"><img src="天文摄影照片/2026-01-12_STARTRAIL_CANON_final_001.jpg" alt="星轨"><div class="ph-cap"><span>星轨成片 · 340 张叠加</span><span>★★★</span></div></div>
+              <div class="shot hoverable" style="--ar:1.5">
+                <img src="天文摄影照片/2025-12-14_STARTRAIL_CANON_final_001.jpg" alt="星轨视频">
+                <div class="play"><i>▶</i></div><span class="dur">00:12</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 延时组 -->
+          <div class="work-row">
+            <div class="r1">
+              <b>2026-04-22</b><span class="sep">·</span><span>CANON 15mm</span><span class="sep">·</span><span>延时</span>
+              <span class="tagline">视频 00:18 · 序列帧 420</span>
+              <span class="open-dir">打开文件夹</span>
+            </div>
+            <div class="gallery">
+              <div class="shot hoverable" style="--ar:1.5">
+                <img src="天文摄影照片/2026-04-22_MILKYWAY_CANON_final_001.png" alt="延时视频">
+                <div class="play"><i>▶</i></div><span class="dur">00:18 · 1080p</span>
+                <div class="ph-cap"><span>银河升起 · 420 帧合成</span><span>★★★</span></div>
+              </div>
+              <div class="shot hoverable" style="--ar:1.722"><img src="天文摄影照片/2026-04-19_MILKYWAY_CANON_final_002.jpg" alt="首帧"><div class="ph-cap"><span>首帧封面</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 记录卡 -->
+        <div class="record">
+          <div class="rh"><b>作品记录卡</b><span>银河 · 2026-06-16</span></div>
+          <div class="rec-row"><span class="k">地点</span><span class="v">青海 · 冷湖 <span class="tag manual">可改</span></span></div>
+          <div class="rec-row"><span class="k">文件夹</span><span class="v mono">2026-06-16_冷湖</span></div>
+          <div class="rec-row"><span class="k">月相</span><span class="v">新月前 2 天 · 3%</span></div>
+          <div class="rec-row"><span class="k">器材</span><span class="v">佳能 6D + 15mm</span></div>
+          <div class="rec-row"><span class="k">单张</span><span class="v">20 s · f/2.8 · ISO 3200</span></div>
+          <div class="rec-row"><span class="k">张数</span><span class="v">180 张 · 堆叠 1 h</span></div>
+          <div class="rec-row"><span class="k">视频</span><span class="v">00:18 · 1080p 30fps</span></div>
+          <div class="rec-row"><span class="k">后期</span><span class="v">Sequator + 调色</span></div>
+          <div class="rec-row"><span class="k">备注</span><span class="v miss">未填写</span></div>
+          <div class="rt">
+            <span class="btn ghost sm">打开文件夹</span>
+            <span class="btn sm">编辑</span>
+            <span class="btn primary sm">保存</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>页签固定三项</b>，数量直接标在页签上；默认停在最近一次拍摄的类别。</span></li>
+    <li><i>2</i><span><b>作品组</b>以夜次聚合，组头给器材与作品数量；视频用 ▶ + 时长角标。</span></li>
+    <li><i>3</i><span><b>记录卡宽 258px</b>，字段用虚线分隔；缺失值显示「未填写」，不显示 0。</span></li>
+    <li><i>4</i><span><b>视频就地播放</b>，支持暂停、全屏、逐帧；不做剪辑导出。</span></li>
+    <li><i>5</i><span>页面上<strong>不出现累计曝光</strong>等深空指标，避免两条主线口径混淆。</span></li>
+    <li><i>6</i><span>星轨视频与照片同组展示，播放角标叠在图上，不用单独一列。</span></li>
+    <li><i>7</i><span><b>缩略图 124px 高、宽度按原比例</b>：银河全景更宽、竖幅更窄，自动换行，不再统一压成横条。</span></li>
+    <li><i>8</i><span><b>打开文件夹</b>：组头与记录卡都能直接打开该夜次目录（<code>01_深空</code> 打开目标成片夹，<code>02_星野</code> 打开 <code>日期_地点</code>）；改地点保存后目录自动重命名，重名加后缀、失败回滚字段。</span></li>
+  </ul>
+</section>
+
+<!-- 07 素材库 -->
+<section id="library">
+  <h2><span class="no">07</span>素材库</h2>
+  <p class="lead">所有文件都在一张表里，用状态页签和标签区分「已入库 / 待整理 / 待确认 / 已排除 / 缺失」。批量操作只在勾选后出现。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">素材库</span><span class="r"><素材库根目录></span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span>星空档案</span><span class="sep">/</span><b>素材库</b><span class="sep">·</span><span class="path"><素材库根目录></span></div>
+        <div class="tb-right"><span class="btn ghost sm">导入</span><span class="btn sm">重新扫描目录</span></div>
+      </div>
+
+      <div class="content">
+        <div class="list-top">
+          <div class="tabs">
+            <span class="tab on">全部 <b>8,925</b></span>
+            <span class="tab">待整理 <b>12</b></span>
+            <span class="tab">待确认 <b>3</b></span>
+            <span class="tab">已入库 <b>8,905</b></span>
+            <span class="tab">已排除 <b>5</b></span>
+            <span class="tab">缺失 <b>0</b></span>
+          </div>
+          <div class="inline-legend" style="margin-left:auto">
+            <span><i style="background:#f5c26b"></i>待确认</span>
+            <span><i style="background:#fb7185"></i>缺失</span>
+          </div>
+        </div>
+
+        <div class="filterbar" style="margin-bottom:9px">
+          <div class="search" style="flex:1;max-width:280px;height:28px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+            搜索文件名 / 目标
+          </div>
+          <span class="selbox on">类别：全部</span>
+          <span class="selbox">目标</span>
+          <span class="selbox">日期范围</span>
+          <span class="selbox">器材</span>
+          <span class="selbox">类型</span>
+          <span class="tool-text" style="margin-left:auto">8,925 个文件 · 2.8 TB</span>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:26px"></th><th style="width:40px">缩略</th><th>文件名</th><th>类别</th><th>目标 / 子类</th><th>夜次</th><th>器材</th><th>类型</th><th>曝光 / 时长</th><th>状态</th><th style="width:34px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="chk on"></span></td>
+                <td><img class="thumb-sm" src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt=""></td>
+                <td><span class="fn">2026-11-20_M42_DWARFMINI_final_001.jpg</span><span class="sub">D:\…\深空\M42\2026-11-20\final</span></td>
+                <td>深空</td><td>M42</td><td>11-20</td><td>DWARF</td><td>成片</td><td>3 h 51 m</td>
+                <td><span class="pill ok"><i></i>已入库</span></td>
+                <td style="color:#7d90ae">⋯</td>
+              </tr>
+              <tr>
+                <td><span class="chk on"></span></td>
+                <td><div class="thumb-vid" style="background:rgba(110,231,255,.1);border-color:rgba(110,231,255,.28);color:#a9ecfa">FITS</div></td>
+                <td><span class="fn">…_raw_0012.fits</span><span class="sub">Light · 60 s · gain 80</span></td>
+                <td>深空</td><td>M42</td><td>11-20</td><td>DWARF</td><td>光帧</td><td>60 s</td>
+                <td><span class="pill ok"><i></i>已入库</span></td>
+                <td style="color:#7d90ae">⋯</td>
+              </tr>
+              <tr>
+                <td><span class="chk"></span></td>
+                <td><div class="thumb-vid" style="background:rgba(245,194,107,.1);border-color:rgba(245,194,107,.3);color:#f8d79b">JPG</div></td>
+                <td><span class="fn">IMG_2043.JPG</span><span class="sub">EXIF 缺失拍摄时间</span></td>
+                <td>星野</td><td>银河</td><td>07-18</td><td>CANON</td><td>成片</td><td>—</td>
+                <td><span class="pill warn"><i></i>待确认</span></td>
+                <td style="color:#f5c26b;font-size:10px">补录</td>
+              </tr>
+              <tr>
+                <td><span class="chk"></span></td>
+                <td><div class="thumb-vid">▶</div></td>
+                <td><span class="fn">2026-10-05_TIMELAPSE_CANON15MM_clip_001.mp4</span><span class="sub">1080p · 30fps · 18 s</span></td>
+                <td>星野</td><td>延时</td><td>10-05</td><td>CANON</td><td>视频</td><td>00:18</td>
+                <td><span class="pill ok"><i></i>已入库</span></td>
+                <td style="color:#7d90ae">⋯</td>
+              </tr>
+              <tr>
+                <td><span class="chk"></span></td>
+                <td><img class="thumb-sm" src="天文摄影照片/2026-09-06_IC4701_DWARFMINI_final_001.jpeg" alt=""></td>
+                <td><span class="fn">2026-09-06_IC4701_DWARFMINI_final_001.jpeg</span><span class="sub">D:\…\深空\IC4701\2026-09-06\final</span></td>
+                <td>深空</td><td>IC4701</td><td>09-06</td><td>DWARF</td><td>成片</td><td>2 h 12 m</td>
+                <td><span class="pill ok"><i></i>已入库</span></td>
+                <td style="color:#7d90ae">⋯</td>
+              </tr>
+              <tr>
+                <td><span class="chk"></span></td>
+                <td><div class="thumb-vid" style="background:rgba(150,180,220,.08);border-color:var(--line);color:#7d90ae">✕</div></td>
+                <td><span class="fn">failed_0007.fits</span><span class="sub">拉伸失败 · 已自动跳过</span></td>
+                <td>深空</td><td>M42</td><td>11-02</td><td>DWARF</td><td>废帧</td><td>—</td>
+                <td><span class="pill mute"><i></i>已排除</span></td>
+                <td style="color:#8fa2be;font-size:9.5px">恢复</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bulkbar">
+          <span class="chk on" style="pointer-events:none"></span>
+          <div class="cnt">已选 2 项<small>3.2 GB · 均为深空光帧</small></div>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <span class="btn sm">改目标</span>
+            <span class="btn sm">改夜次</span>
+            <span class="btn danger sm">标记排除</span>
+            <span class="btn sm" style="border-color:rgba(167,139,250,.32);color:#cfc2ff">撤销上次整理</span>
+          </div>
+        </div>
+
+        <div class="list-top" style="margin:9px 0 0">
+          <span class="tool-text">显示 1–6 / 8,925 · 双击行打开详情</span>
+          <span class="selbox" style="margin-left:auto">每页 50</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>状态页签带数量</b>；待确认、缺失用暖金 / 玫红点额外提示，不只靠字色。</span></li>
+    <li><i>2</i><span><b>行高 32px</b>，缩略图 26×26；文件名过长中间省略，悬停显示完整路径。</span></li>
+    <li><i>3</i><span><b>勾选后才出现底部批量条</b>，同时显示数量与体积；未勾选时不占空间。</span></li>
+    <li><i>4</i><span><b>非图片素材用字牌</b>（FITS / JPG / ▶ / ✕），不用空白占位图。</span></li>
+    <li><i>5</i><span>排除与删除都写历史，操作后给 10 秒撤销提示；撤销入口同时留在批量条。</span></li>
+    <li><i>6</i><span>表格横向滚动时，文件名列固定左侧，状态列固定右侧。</span></li>
+  </ul>
+</section>
+
+<!-- 08 同步 -->
+<section id="sync">
+  <h2><span class="no">08</span>同步</h2>
+  <p class="lead">同步是独立页面而不是弹窗：连接、扫描、预检、拷贝、结果都在同一列自上而下完成。只服务深空的 Dwarf 机身，星野素材走拖放导入。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">同步 · 已连接 Dwarf mini</span><span class="r">F:\Astronomy</span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span>星空档案</span><span class="sep">/</span><b>同步</b><span class="sep">·</span><span style="color:#8ff2e3">设备已连接</span></div>
+        <div class="tb-right"><span class="selbox">扫描深度：标准</span><span class="btn ghost sm">重新扫描</span></div>
+      </div>
+
+      <div class="sync-grid">
+        <div>
+          <div class="conn">
+            <div class="ch"><span class="led"></span>已连接 · Dwarf mini</div>
+            <div class="meta2">
+              挂载点 <b>F:\Astronomy</b><br>
+              会话 <b>34</b> · 光帧 <b>8,208</b> · 占用 <b>42.4 GB</b><br>
+              上次同步 <b>2026-11-23 17:53</b>
+            </div>
+          </div>
+
+          <div class="opt">
+            <div class="oh">本次选项</div>
+            <div class="or"><span class="chk on"></span><div>同步校准场新增<small>暗场库仅首次拷贝，之后只补新增</small></div></div>
+            <div class="or"><span class="chk"></span><div>生成可安全删除清单<small>默认关闭；勾选后结果页才出现导出</small></div></div>
+            <div class="or"><span class="chk on"></span><div>完成后打开结果页</div></div>
+          </div>
+
+          <div class="opt">
+            <div class="oh">跳过的内容</div>
+            <div class="meta2" style="margin:0;font-size:9.5px;color:#7d90ae;line-height:1.85">
+              failed_* · jpg 预览 · Thumbnail · Solving_Failed<br>
+              只拷光帧与校准场，不动机身任何文件
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="stats" style="margin:0 0 9px">
+            <div class="stat" style="padding:10px 11px"><div class="k">新增会话</div><div class="v" style="font-size:21px">2</div></div>
+            <div class="stat" style="padding:10px 11px"><div class="k">已同步</div><div class="v" style="font-size:21px">32</div></div>
+            <div class="stat" style="padding:10px 11px"><div class="k">上次中断</div><div class="v" style="font-size:21px;color:#f8d79b">1</div></div>
+            <div class="stat" style="padding:10px 11px"><div class="k">待拷</div><div class="v" style="font-size:21px">5.1<small>GB</small></div></div>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>会话</th><th>目标</th><th>夜次</th><th>光帧</th><th>体积</th><th>状态</th></tr></thead>
+              <tbody>
+                <tr><td><span class="fn">DWARF_RAW_TELE_M42_20261122</span><span class="sub">183 帧 · 60 s</span></td><td>M42</td><td>11-22</td><td>183</td><td>760 MB</td><td><span class="pill cyan"><i></i>新增</span></td></tr>
+                <tr><td><span class="fn">DWARF_RAW_TELE_IC434_20261121</span><span class="sub">186 帧 · 60 s</span></td><td>IC434</td><td>11-21</td><td>186</td><td>772 MB</td><td><span class="pill cyan"><i></i>新增</span></td></tr>
+                <tr><td><span class="fn">DWARF_RAW_TELE_MOSAIC_M31_20260912</span><span class="sub">871 帧 · 60 s</span></td><td>M31</td><td>09-12</td><td>447</td><td>3.6 GB</td><td><span class="pill warn"><i></i>中断续传</span></td></tr>
+                <tr><td><span class="fn">DWARF_RAW_TELE_M45_20261006</span><span class="sub">已完成校验</span></td><td>M45</td><td>10-06</td><td>212</td><td>881 MB</td><td><span class="pill ok"><i></i>已同步</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="precheck">
+            <span style="font-size:11px">✓</span>
+            空间预检：目标盘剩余 <b>412 GB</b>，本次需要 <b>5.1 GB</b>，空间充足。
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:9px;align-items:center">
+            <span class="tool-text">开始后预计处理 1,240 个文件 · 中断可续传</span>
+            <span style="margin-left:auto;display:flex;gap:6px">
+              <span class="btn sm">取消</span>
+              <span class="btn primary sm" style="height:32px;padding:0 18px">开始同步</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3><span class="num">8.1</span>同步中</h3>
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">同步 · 进行中</span><span class="r">可取消 · 已校验文件保留</span></div>
+    <div class="main">
+      <div class="content" style="padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#a9bad3">
+          <span class="pill cyan"><i></i>同步中</span>
+          <b style="color:#e2ecfa;font-size:12px">DWARF_RAW_TELE_MOSAIC_M31_20260912</b>
+          <span style="color:#5f7292">·</span>
+          <span>当前 412 / 871 个文件</span>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#8adff2">6.2 MB/s</span>
+        </div>
+        <div class="progress" style="height:6px;margin-top:10px"><i style="width:47%"></i></div>
+        <div style="display:flex;justify-content:space-between;font-size:9.5px;color:#6f82a0;margin-top:5px">
+          <span>47% · 已传 2.4 GB / 5.1 GB</span>
+          <span>剩余约 7 分钟</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3><span class="num">8.2</span>同步完成</h3>
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">同步 · 完成</span><span class="r">全部校验通过</span></div>
+    <div class="main">
+      <div class="content">
+        <div class="result-hero">
+          <div class="ic">✓</div>
+          <div class="tx">
+            <b>同步完成，全部校验通过</b>
+            <small>新增 1,240 个文件 · 2 个目标 · 用时 14 分 08 秒</small>
+          </div>
+          <div class="sp"><b>5.1 GB</b><small>本次写入</small></div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>会话</th><th>文件数</th><th>体积</th><th>校验</th><th>落盘位置</th></tr></thead>
+            <tbody>
+              <tr><td><span class="fn">DWARF_RAW_TELE_M42_20261122</span></td><td>183</td><td>760 MB</td><td><span style="color:#8ff2e3">✓ 通过</span></td><td>深空\M42\2026-11-22\limits</td></tr>
+              <tr><td><span class="fn">DWARF_RAW_TELE_IC434_20261121</span></td><td>186</td><td>772 MB</td><td><span style="color:#8ff2e3">✓ 通过</span></td><td>深空\IC434\2026-11-21\limits</td></tr>
+              <tr><td><span class="fn">DWARF_RAW_TELE_MOSAIC_M31_20260912</span></td><td>871</td><td>3.6 GB</td><td><span style="color:#8ff2e3">✓ 通过</span></td><td>深空\M31\2026-09-12\limits</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:7px;margin-top:10px">
+          <span class="btn sm">打开素材库</span>
+          <span class="btn ghost sm">查看历史记录</span>
+          <span class="btn ghost sm" style="border-color:rgba(245,194,107,.3);color:#f8d79b;opacity:.45">导出可安全删除清单（未勾选）</span>
+          <span class="tool-text" style="margin-left:auto">机身文件未被修改</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>只列需要处理的会话</b>，已完成的压成数字；表格最多 4 行，超出滚动。</span></li>
+    <li><i>2</i><span><b>「生成删除清单」默认不勾选</b>；未勾选时结果页按钮禁用并写明原因，不隐藏。</span></li>
+    <li><i>3</i><span><b>空间预检</b>在开始前完成；不足时主按钮禁用并显示「还需 X GB」。</span></li>
+    <li><i>4</i><span><b>进行中</b>显示当前会话、文件数、速度与剩余时间；取消后已校验文件保留。</span></li>
+    <li><i>5</i><span>完成态用薄荷绿成功色块，数字优先；失败项会以玫红行插在表格中，不弹窗打断。</span></li>
+    <li><i>6</i><span>未连接时整页替换为引导（插线 → 识别 → 扫描），不显示空表格。</span></li>
+  </ul>
+</section>
+
+<!-- 09 历史记录 -->
+<section id="history">
+  <h2><span class="no">09</span>历史记录</h2>
+  <p class="lead">素材库的流水账。默认时间倒序，一行一次文件操作；只读、可筛选、可导出当前筛选结果。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">历史记录</span><span class="r">719 条</span></div>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span>星空档案</span><span class="sep">/</span><b>历史记录</b><span class="sep">·</span><span>只读</span></div>
+        <div class="tb-right"><span class="btn ghost sm">导出 CSV</span></div>
+      </div>
+
+      <div class="content">
+        <div class="filterbar" style="margin-bottom:9px">
+          <span class="selbox on">最近 7 天</span>
+          <span class="selbox">操作类型</span>
+          <span class="selbox">类别</span>
+          <span class="selbox">批次</span>
+          <div class="search" style="flex:1;max-width:220px;height:28px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+            搜索路径
+          </div>
+          <div class="inline-legend" style="margin-left:auto">
+            <span><i style="background:#5eead4"></i>新增</span>
+            <span><i style="background:#a78bfa"></i>移动 / 改名</span>
+            <span><i style="background:#fb7185"></i>删除</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:74px">时间</th><th style="width:56px">操作</th><th>类别</th><th>文件相对路径</th><th>大小</th><th>来源</th><th>批次</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="fn">11-23 18:01</span></td>
+                <td><span style="color:#cfc2ff">改名</span></td>
+                <td>校准场-目录</td>
+                <td><span class="fn">_dwarf mini校准场\</span></td>
+                <td>2.8 GB</td><td>_校准场\</td>
+                <td><span class="tag auto">目录改名</span></td>
+              </tr>
+              <tr>
+                <td><span class="fn">11-23 17:53</span></td>
+                <td><span style="color:#8ff2e3">新增</span></td>
+                <td>校准场-bias</td>
+                <td><span class="fn">_dwarf mini校准场\bias\cam_0\…fits</span></td>
+                <td>4,053 KB</td><td>F:\Astronomy\CALI_FRAME\bias</td>
+                <td><span class="tag file">首次拷贝校准场</span></td>
+              </tr>
+              <tr>
+                <td><span class="fn">11-23 17:53</span></td>
+                <td><span style="color:#8ff2e3">新增</span></td>
+                <td>暗场库</td>
+                <td><span class="fn">_dwarf mini校准场\暗场库\…fits</span></td>
+                <td>4,053 KB</td><td>F:\Astronomy\DWARF_DARK</td>
+                <td><span class="tag file">首次拷贝校准场</span></td>
+              </tr>
+              <tr>
+                <td><span class="fn">11-20 21:14</span></td>
+                <td><span style="color:#8ff2e3">新增</span></td>
+                <td>深空-光帧</td>
+                <td><span class="fn">深空\M42\2026-11-20\limits\…_raw_0231.fits</span></td>
+                <td>60 s × 231</td><td>F:\…\M42_20261120</td>
+                <td><span class="tag file">同步批次 11-20</span></td>
+              </tr>
+              <tr>
+                <td><span class="fn">11-20 21:09</span></td>
+                <td><span style="color:#cfc2ff">改字段</span></td>
+                <td>深空-成片</td>
+                <td><span class="fn">深空\M42\2026-11-20\final\…_final_001.jpg</span></td>
+                <td>—</td><td>手工</td>
+                <td><span class="tag manual">评级 ★★★</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <span>共 719 条 · 当前筛选 <b style="color:#c7d8ec">128</b> 条</span>
+          <div class="pg"><span class="btn ghost sm">上一页</span><span class="btn ghost sm">下一页</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>操作色</b>：新增薄荷绿、移动 / 改名暗紫、删除玫红、改字段暗紫；与全站状态色一致。</span></li>
+    <li><i>2</i><span><b>路径列</b>用等宽字体并保留相对路径，长路径中间省略，悬停看全文。</span></li>
+    <li><i>3</i><span><b>批次标签</b>可点击，一键筛出某次同步或首次拷贝的全部记录。</span></li>
+    <li><i>4</i><span>「导出 CSV」导出的就是当前筛选结果，不是全库。</span></li>
+    <li><i>5</i><span>只读视图，不提供编辑与删除；点行在右侧抽屉看完整路径与来源设备。</span></li>
+  </ul>
+</section>
+
+<!-- 10 查看器 -->
+<section id="viewer">
+  <h2><span class="no">10</span>查看器</h2>
+  <p class="lead">看图与改字段在同一屏：画面占满左侧，字段抽屉默认收起，点右上角「信息」滑出。抽屉展开时也不遮住整张图。</p>
+
+  <div class="frame">
+    <div class="frame-bar"><span class="lights"><i></i><i></i><i></i></span><span class="t">查看器 · 2026-11-20_M42_DWARFMINI_final_001.jpg</span><span class="r">1 / 12</span></div>
+    <div class="viewer">
+      <div class="stage">
+        <div class="top">
+          <span class="nm">2026-11-20_M42_DWARFMINI_final_001.jpg</span>
+          <span>·</span><span>4,480 × 4,480</span><span>·</span><span>12.4 MB</span>
+          <span class="tools">
+            <span class="btn ghost sm">适应窗口</span>
+            <span class="btn ghost sm">1:1</span>
+            <span class="btn ghost sm">信息</span>
+            <span class="btn ghost sm">全屏</span>
+            <span class="btn ghost sm">打开文件夹</span>
+          </span>
+        </div>
+        <div class="canvas">
+          <img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt="M42 查看器">
+          <span class="panel-note">滚轮缩放 · 拖拽平移 · 双击适应</span>
+        </div>
+        <div class="film">
+          <div class="shot"><img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_002.jpg" alt=""></div>
+          <div class="shot cur"><img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_001.jpg" alt=""></div>
+          <div class="shot"><img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_003.jpg" alt=""></div>
+          <div class="shot"><img src="天文摄影照片/2026-11-20_IC434_DWARFMINI_final_001.jpg" alt=""></div>
+          <div class="shot"><img src="天文摄影照片/2026-11-21_NGC2264_DWARFMINI_final_001.jpg" alt=""></div>
+          <div class="shot"><img src="天文摄影照片/2026-11-20_M42_DWARFMINI_final_002_dup.jpg" alt=""></div>
+        </div>
+      </div>
+
+      <aside class="drawer">
+        <div class="dh"><b>文件信息</b><span>字段可编辑</span></div>
+
+        <div class="fld"><div class="k">夜次日期</div><div class="v"><span>2026-11-20</span><span class="tag auto">自动</span></div></div>
+        <div class="fld"><div class="k">目标</div><div class="v"><span>M42 · 猎户座大星云</span><span class="tag file">水印</span></div></div>
+        <div class="fld"><div class="k">器材</div><div class="v"><span>DWARF mini</span><span class="tag manual">手工</span></div></div>
+        <div class="fld"><div class="k">单帧曝光</div><div class="v"><span>60 s · gain 80</span><span class="tag file">FITS</span></div></div>
+        <div class="fld"><div class="k">帧数</div><div class="v"><span>231</span><span class="tag auto">自动</span></div></div>
+        <div class="fld"><div class="k">累计曝光</div><div class="v"><span>3 h 51 m</span><span class="tag auto">自动</span></div></div>
+        <div class="fld"><div class="k">地点</div><div class="v miss"><span>未填写</span><span class="tag manual">可填</span></div></div>
+        <div class="fld"><div class="k">评级</div><div class="v"><span class="star-r">★★★☆☆</span><span class="tag manual">手工</span></div></div>
+        <div class="fld"><div class="k">备注</div><div class="v miss"><span>未填写</span></div></div>
+
+        <div class="dfoot">
+          <span class="btn sm">恢复自动值</span>
+          <span class="btn primary sm">保存</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="note"><b>视频查看：</b>打开 mp4 / mov 时画面区换成播放器（播放、暂停、全屏、逐帧），右侧字段改为时长、分辨率、帧率、器材与记录卡字段，仍可改备注与评级；抽屉收起时按空格直接播放。</div>
+
+  <ul class="spec">
+    <li><i>1</i><span><b>抽屉默认收起</b>，进入即纯看图；展开宽 272px，面积不超过窗口 20%。</span></li>
+    <li><i>2</i><span><b>来源标签</b>固定右侧：自动 / 水印 / FITS / EXIF / 手工；手工值带锁，重扫不覆盖。</span></li>
+    <li><i>3</i><span><b>留空显示「未填写」</b>，不显示 0，也不阻塞入库。</span></li>
+    <li><i>4</i><span>底部胶片条 6 格，当前项加星青描边；← → 切图，空格全屏，Esc 关闭抽屉。</span></li>
+    <li><i>5</i><span>保存后统计与检索立即刷新，并在历史记录留一条「改字段」。</span></li>
+    <li><i>6</i><span>大图区域保持纯黑，不加网格或纹理，避免干扰星点判读。</span></li>
+    <li><i>7</i><span><b>打开文件夹</b>在资源管理器中定位并选中当前文件；文件夹已改名或移动时提示「重新定位」。</span></li>
+  </ul>
+</section>
+
+<!-- 11 落地说明 -->
+<section id="handoff">
+  <h2><span class="no">11</span>落地说明</h2>
+  <p class="lead">这一版是静态视觉稿，不含交互逻辑。开发时直接按下面的刻度落地，避免每个页面各写一套数值。</p>
+
+  <div class="comp-grid" style="grid-template-columns:1fr 1fr">
+    <div class="comp">
+      <div class="ch">Layout</div>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:#9fb2ce;line-height:1.9">
+        <li>基准窗口 <code>1440×900</code>，最小 <code>1024×700</code>。</li>
+        <li>侧栏 <code>204px</code>（可折叠 56px），顶栏 <code>56px</code>。</li>
+        <li>内容区左右留白 <code>22px</code>，模块间距 <code>9–14px</code>。</li>
+        <li>首页主视觉 <code>268px</code>；后续页面不再出现大主视觉。</li>
+      </ul>
+    </div>
+    <div class="comp">
+      <div class="ch">Assets</div>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:#9fb2ce;line-height:1.9">
+        <li>本稿配图取自工作区真实成片（<code>天文摄影照片\</code>），仅作版式演示。</li>
+        <li>Dwarf 成片底部自带白色信息条：分日期缩略图按原比例显示并裁掉该条，首页主视觉与卡片封面仍裁切填充。</li>
+        <li>天体名片正式版优先使用 NASA 公版图，需在右下角标来源与许可。</li>
+        <li>图标统一 <code>1.7px</code> 描边、圆角端点，不混用实心图标。</li>
+      </ul>
+    </div>
+    <div class="comp">
+      <div class="ch">States</div>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:#9fb2ce;line-height:1.9">
+        <li>所有列表都要有：空态、加载骨架（&gt;400ms）、错误行、选中行。</li>
+        <li>危险操作二次确认，文案写清影响数量与是否可撤销。</li>
+        <li>同步、拷贝、扫描必须可取消，且保留已校验文件。</li>
+      </ul>
+    </div>
+    <div class="comp">
+      <div class="ch">Constraints</div>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:#9fb2ce;line-height:1.9">
+        <li>深空与星野的统计口径分离，星野页面不出现累计曝光。</li>
+        <li>颜色只用于状态；同屏状态色不超过两种。</li>
+        <li>不使用大面积纯白、纯黑反差；夜间亮度优先。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3><span class="num">下一步</span></h3>
+  <ul>
+    <li>确认本稿的<strong>配色、字号层级、卡片与表格密度、记录卡字段</strong>；要调的地方现在提，改动只影响样式表。</li>
+    <li>确认后做可点击原型：首页 → 目标详情 → 查看器 / 星野 → 素材库 → 同步的完整链路，含抽屉与状态切换。</li>
+    <li>原型确认后再进入开发；在此之前不写正式代码，避免返工。</li>
+  </ul>
+
+  <div class="note warn"><b>待你拍板的两处：</b>① 首页目标卡一行 4 个（当前）还是 3 个更大；② 星野记录卡固定在右侧（当前）还是点作品后从底部弹出。其余沿用线框 v0.2。</div>
+  <div class="note"><b>已沿用：</b>首页主视觉＝最近成片 + 可置顶；左侧导航保留「夜次」；查看器抽屉默认收起；星野分银河 / 星轨 / 延时；同步仅深空、只拷光帧、删除清单默认不勾选、暗场库仅首次。</div>
+</section>
+
+<footer>
+  <span>星空摄影档案管理软件 · 高保真视觉稿 v1.3</span>
+  <span>依据线框 v0.2 / PRD v0.7 · 2026-11-23</span>
+</footer>
+
+
+
+
+
+
+
+
+</div>
+</body>
+</html>

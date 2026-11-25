@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星空档案馆 · Astro Archive</title>
+    <script>
+      /* 首屏前应用主题，避免深色闪烁；与 theme.ts 的缓存键保持一致 */
+      ;(function () {
+        try {
+          var root = document.documentElement
+          var pref = localStorage.getItem('astro.theme') || 'dark'
+          var accent = localStorage.getItem('astro.accent') || 'cyan'
+          var light =
+            pref === 'light' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches)
+          root.dataset.theme = light ? 'light' : 'dark'
+          root.dataset.themePref = pref
+          root.dataset.accent = accent
+          if (localStorage.getItem('astro.motion') === '1') root.dataset.motion = 'reduce'
+          root.style.background = light ? '#f2f6fc' : '#05070e'
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>

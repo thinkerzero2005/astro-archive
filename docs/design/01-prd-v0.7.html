@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星空摄影档案管理软件 · 产品需求文档 v0.7</title>
+<style>
+  :root{
+    --bg:#070b16;
+    --panel:#0e1524;
+    --line:#1e2a40;
+    --line-soft:#172134;
+    --text:#e7eefb;
+    --muted:#8fa2be;
+    --dim:#6b7d99;
+    --cyan:#6ee7ff;
+    --violet:#a78bfa;
+    --amber:#f5c26b;
+    --rose:#fb7185;
+    --green:#5eead4;
+    --radius:14px;
+    --max:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 620px at 78% -12%, rgba(110,231,255,.10), transparent 62%),
+      radial-gradient(900px 520px at 12% 4%, rgba(167,139,250,.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.75;
+    font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .starfield{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+  .wrap{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:0 28px 96px}
+
+  header{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  h1{font-size:38px;line-height:1.22;margin:16px 0 10px;letter-spacing:-.01em;font-weight:700}
+  h1 span{background:linear-gradient(100deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:680px;font-size:15.5px;margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-size:12px;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.02);padding:5px 11px;border-radius:999px}
+  .chip b{color:var(--text);font-weight:600}
+
+  nav{position:sticky;top:0;z-index:20;background:rgba(7,11,22,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);margin-bottom:44px}
+  nav .inner{max-width:var(--max);margin:0 auto;padding:10px 28px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  nav .inner::-webkit-scrollbar{display:none}
+  nav a{flex:0 0 auto;font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:7px;white-space:nowrap}
+  nav a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+
+  section{margin:0 0 56px;scroll-margin-top:64px}
+  h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  h3{font-size:19px;margin:34px 0 10px;font-weight:650;letter-spacing:-.005em}
+  h3 .num{color:var(--violet);font-variant-numeric:tabular-nums;margin-right:8px;font-size:15px}
+  h4{font-size:15px;margin:22px 0 8px;font-weight:650;color:#cfe0f7}
+  p{margin:8px 0 14px;color:#c7d5ea}
+  ul,ol{margin:8px 0 16px;padding-left:22px;color:#c7d5ea}
+  li{margin:5px 0}
+  strong{color:#fff;font-weight:650}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:12.5px;background:rgba(110,231,255,.08);border:1px solid rgba(110,231,255,.16);color:#bfeaf7;padding:1px 6px;border-radius:5px}
+
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+
+  .contract{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+  @media(max-width:900px){.contract{grid-template-columns:1fr 1fr}}
+  .contract .cell{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .contract .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+  .contract .v{font-size:14.5px;color:#e9f1fd;font-weight:600;line-height:1.5}
+  .contract .v small{display:block;font-weight:400;color:var(--muted);font-size:12.5px;margin-top:4px;line-height:1.55}
+
+  .tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:5px;font-weight:600;letter-spacing:.02em;vertical-align:middle}
+  .t-p0{background:rgba(94,234,212,.12);color:var(--green);border:1px solid rgba(94,234,212,.28)}
+  .t-p1{background:rgba(245,194,107,.10);color:var(--amber);border:1px solid rgba(245,194,107,.28)}
+  .t-out{background:rgba(251,113,133,.10);color:var(--rose);border:1px solid rgba(251,113,133,.26)}
+  .t-new{background:rgba(110,231,255,.12);color:var(--cyan);border:1px solid rgba(110,231,255,.3)}
+
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:14px 0 20px;background:var(--panel)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px}
+  th{text-align:left;font-weight:650;color:#dbe8fa;background:rgba(255,255,255,.035);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12.5px;letter-spacing:.03em}
+  td{padding:11px 14px;border-bottom:1px solid var(--line-soft);color:#c2d1e7;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:rgba(110,231,255,.03)}
+  td .sub{display:block;color:var(--dim);font-size:12px;margin-top:3px}
+
+  .req{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0;margin:14px 0;overflow:hidden}
+  .req-head{display:flex;align-items:center;gap:12px;padding:13px 18px;background:rgba(255,255,255,.028);border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+  .req-id{font-family:"SFMono-Regular",Consolas,monospace;font-size:11.5px;color:var(--cyan);background:rgba(110,231,255,.09);border:1px solid rgba(110,231,255,.22);padding:2px 7px;border-radius:5px;letter-spacing:.04em}
+  .req-title{font-weight:650;font-size:14.5px;color:#eef5ff}
+  .req-body{padding:4px 18px 14px}
+  .req-body dl{margin:10px 0 0;display:grid;grid-template-columns:74px 1fr;gap:6px 14px;font-size:13.5px}
+  .req-body dt{color:var(--dim);font-size:12.5px;padding-top:1px}
+  .req-body dd{margin:0;color:#c7d5ea}
+  @media(max-width:640px){.req-body dl{grid-template-columns:1fr;gap:2px 0}.req-body dt{margin-top:8px}}
+
+  .note{border-left:2px solid var(--violet);background:rgba(167,139,250,.06);padding:13px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:13.5px;color:#d4ddf0}
+  .note b{color:var(--violet)}
+  .warn{border-left-color:var(--amber);background:rgba(245,194,107,.055)}
+  .warn b{color:var(--amber)}
+  .danger{border-left-color:var(--rose);background:rgba(251,113,133,.055)}
+  .danger b{color:var(--rose)}
+
+  figure{margin:22px 0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  figure svg{display:block;width:100%;height:auto}
+  figcaption{font-size:12px;color:var(--dim);margin-top:14px;text-align:center}
+  svg text{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  .svg-node{fill:#121b2c;stroke:#2a3a55}
+  .svg-node-a{fill:rgba(110,231,255,.08);stroke:rgba(110,231,255,.45)}
+  .svg-node-b{fill:rgba(167,139,250,.08);stroke:rgba(167,139,250,.45)}
+  .svg-node-c{fill:rgba(245,194,107,.08);stroke:rgba(245,194,107,.4)}
+
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 4px}
+  @media(max-width:820px){.facts{grid-template-columns:1fr}}
+  .fact{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .fact .ft{font-size:12px;color:var(--dim);letter-spacing:.06em;margin-bottom:6px}
+  .fact .fv{font-size:14px;color:#e4eefc;font-weight:600;line-height:1.55}
+  .fact .fn{font-size:12.5px;color:var(--muted);font-weight:400;margin-top:6px;line-height:1.6}
+
+  /* target profile mock */
+  .profile{background:linear-gradient(160deg,#0c1526,#0a111f);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:18px 0}
+  .profile .hero{height:180px;background:
+      radial-gradient(520px 180px at 22% 120%, rgba(167,139,250,.35), transparent 70%),
+      radial-gradient(300px 160px at 68% 40%, rgba(110,231,255,.22), transparent 72%),
+      #060a13;
+      position:relative;display:flex;align-items:flex-end;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .profile .hero .glow{position:absolute;right:34px;top:32px;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.85),rgba(255,180,120,.25) 38%,transparent 68%);filter:blur(2px)}
+  .profile .hero .glow::after{content:"";position:absolute;inset:18px;border-radius:50%;border:1px solid rgba(255,255,255,.28);transform:rotate(-24deg) scaleX(2.1)}
+  .profile .hero .t{position:relative;z-index:2}
+  .profile .hero .t h5{margin:0;font-size:22px;color:#fff;font-weight:700;letter-spacing:.01em}
+  .profile .hero .t p{margin:4px 0 0;font-size:12.5px;color:#9fb4d0;letter-spacing:.04em}
+  .profile .body{padding:18px 22px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:760px){.profile .body{grid-template-columns:1fr 1fr}}
+  .profile .kv .k{font-size:10.5px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+  .profile .kv .v{font-size:13.5px;color:#e6f0fb;font-weight:600;margin-top:3px}
+  .profile .desc{padding:0 22px 20px;font-size:13px;color:#b9c9e0;line-height:1.7}
+  .profile .src{padding:0 22px 18px;font-size:11.5px;color:#64748b}
+
+  .qlist{list-style:none;padding:0;margin:14px 0}
+  .qlist li{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line-soft);font-size:13.8px;color:#c7d5ea}
+  .qlist li:last-child{border-bottom:none}
+  .qlist .qid{font-family:Consolas,monospace;font-size:11.5px;color:var(--violet);flex:0 0 auto;padding-top:3px}
+
+  footer{border-top:1px solid var(--line);padding-top:22px;color:var(--dim);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media print{
+    body{background:#fff;color:#111;font-size:11pt}
+    .starfield,nav{display:none}
+    .wrap{max-width:none;padding:0}
+    h2{color:#0b5d75}
+    h2::after{background:#ccc}
+    .card,.req,figure,.tbl-wrap,.contract .cell,.fact,.profile{background:#fff;border-color:#ccc;break-inside:avoid}
+    .req-head{background:#f4f6f9}
+    p,li,td,dd,.req-body dt,.profile .desc{color:#222}
+    code{background:#eef4f6;color:#0a4f63;border-color:#cfe0e6}
+    .tag{border-color:#bbb}
+  }
+</style>
+</head>
+<body>
+<svg class="starfield" xmlns="http://www.w3.org/2000/svg">
+  <defs><radialGradient id="sg"><stop offset="0%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="120" cy="80" r="1.2" fill="url(#sg)"/><circle cx="340" cy="40" r="1" fill="url(#sg)"/>
+  <circle cx="820" cy="120" r="1.4" fill="url(#sg)"/><circle cx="1080" cy="60" r="1" fill="url(#sg)"/>
+  <circle cx="620" cy="200" r="1" fill="url(#sg)"/><circle cx="1460" cy="180" r="1.2" fill="url(#sg)"/>
+  <circle cx="240" cy="420" r="1" fill="url(#sg)"/><circle cx="980" cy="520" r="1.2" fill="url(#sg)"/>
+  <circle cx="1340" cy="700" r="1" fill="url(#sg)"/><circle cx="80" cy="900" r="1.2" fill="url(#sg)"/>
+</svg>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>Product Requirements · 需求定义</div>
+  <h1>星空摄影档案管理软件<br><span>Deep-Sky &amp; Milky Way Archive</span></h1>
+  <p class="sub">把散落在手机相册、硬盘和 Dwarf Mini 机身里的星空作品，整理成按「天体目标 · 拍摄夜次 · 设备组合 · 后期版本」四个维度可查、可算的私人档案库；并为每个深空目标配一张能读的“天体名片”。</p>
+  <div class="meta">
+    <span class="chip">版本 <b>v0.7（需求定义）</b></span>
+    <span class="chip">素材库 <b><素材库根目录></b></span>
+    <span class="chip">机身原始素材 <b>已实测 34 次拍摄</b></span>
+    <span class="chip">dwarf mini 校准场 <b>717 个 · 2.8 GB</b></span>
+    <span class="chip">同步 <b>一键增量 · 只拷光帧</b></span>
+    <span class="chip">时间语义 <b>已用 FITS 头确认</b></span>
+    <span class="chip">日期 <b>2026-11-23</b></span>
+    <span class="chip">阶段 <b>不进入开发</b></span>
+    <span class="chip">形态 <b>Windows 桌面优先 · 可联网</b></span>
+    <span class="chip">双主线 <b>深空 / 星野</b></span>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#contract">产品契约</a>
+  <a href="#status">素材现状</a>
+  <a href="#research">现有方案</a>
+  <a href="#scope">范围</a>
+  <a href="#model">产品模型</a>
+  <a href="#fr">功能需求</a>
+  <a href="#rules">共享规则</a>
+  <a href="#edge">异常与边界</a>
+  <a href="#open">待确认</a>
+</div></nav>
+
+<!-- 01 -->
+<section id="contract">
+  <h2>01 · 产品契约</h2>
+  <div class="contract">
+    <div class="cell">
+      <div class="k">主要使用者</div>
+      <div class="v">你自己，业余星空摄影爱好者
+        <small>Windows 电脑为主；手机端后续扩展</small>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="k">触发时刻</div>
+      <div class="v">深空与星野作品散落各处
+        <small>深空成图带水印、原始帧在机身；星野只有成片与视频</small>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="k">核心任务</div>
+      <div class="v">把已有作品整理归档并持续增量
+        <small>深空按目标、星野按银河/星轨/延时，两条线分开管</small>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="k">完成标志</div>
+      <div class="v">点开一个目标就能看全
+        <small>拍过几次 · 累计曝光 · 哪版最好 · 这是什么天体；星野则看记录卡与作品时间线</small>
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    <b>一句话定义：</b>一个「档案管理 + 自动整理 + 天体科普」的桌面工具。它不修图、不叠加、不控制赤道仪；价值在于让作品<b>找得回、看得懂、算得清、拿得出手</b>。全库只分两条主线：<b>深空</b>（目标导向，Dwarf 拍摄）与<b>星野</b>（银河 / 星轨 / 延时，含视频）。
+  </div>
+</section>
+
+<!-- 02 素材现状 -->
+<section id="status">
+  <h2>02 · 素材现状（已确认）</h2>
+  <p>这是本版 PRD 最重要的输入。三类作品的<strong>可用信息完全不同</strong>，软件必须分别对待，不能套用同一套“读取原始帧元数据”的逻辑。</p>
+  <div class="facts">
+    <div class="fact">
+      <div class="ft">星野（银河 / 星轨 / 延时）</div>
+      <div class="fv">只有成片与视频，无 RAW</div>
+      <div class="fn">无法从原始帧统计曝光。<br>银河/星轨多为照片，延时还有视频成片与序列帧；信息靠 EXIF 与手工补录。</div>
+    </div>
+    <div class="fact">
+      <div class="ft">深空（Dwarf Mini）</div>
+      <div class="fv">成片在手机相册，带水印</div>
+      <div class="fn">实测水印含目标、<strong>总曝光</strong>、结束时间。<br>这是自动识别的<strong>主入口</strong>，已用 4 张样本验证。</div>
+    </div>
+    <div class="fact">
+      <div class="ft">深空原始素材（Dwarf 机身）</div>
+      <div class="fv">已实测：34 次拍摄 / 20 个目标</div>
+      <div class="fn">8,208 张可用光帧，累计约 <strong>90.9 小时</strong>曝光。<br>目录规整、带 shotsInfo.json 与 FITS 头，可直接统计。</div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>机身路径</th><th>对应内容</th><th>实测规模</th><th>软件是否读取</th></tr></thead>
+      <tbody>
+        <tr><td><code>F:\Astronomy</code></td><td>深空拍摄会话（唯一主数据区）</td><td>34 个会话 · 19,705 文件 · 42.4 GB</td><td>是（核心）</td></tr>
+        <tr><td><code>F:\Burst</code></td><td>连拍 / 行星短片分帧</td><td>0 文件</td><td>否</td></tr>
+        <tr><td><code>F:\Normal_Photos</code></td><td>日常拍摄成片</td><td>仅 50 张缩略图，原图不在机身</td><td>否</td></tr>
+        <tr><td><code>F:\Panoramas</code></td><td>全景拼接成片</td><td>0 文件</td><td>否</td></tr>
+        <tr><td><code>F:\Videos</code></td><td>视频 / 延时</td><td>仅 6 张缩略图，视频不在机身</td><td>否</td></tr>
+        <tr><td><code>F:\.log</code></td><td>运行日志</td><td>空</td><td>否</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h4>F:\Astronomy 内部结构</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>子目录</th><th>含义</th><th>实测</th></tr></thead>
+      <tbody>
+        <tr><td><code>DWARF_RAW_TELE_&lt;目标&gt;_EXP_&lt;曝光&gt;_GAIN_&lt;增益&gt;_&lt;时间&gt;</code></td><td>一次拍摄会话 = 一个夜次里的一个目标</td><td>34 个（含 7 次多板拼图）</td></tr>
+        <tr><td><code>DWARF_RAW_TELE_MOSAIC_&lt;目标&gt;_…</code></td><td>多板拼图会话；根目录下是 <code>(1) (2) …</code> 面板子目录</td><td>每会话 2 面板</td></tr>
+        <tr><td><code>CALI_FRAME</code></td><td>校准场</td><td>bias 22 · flat 18 · dark 132</td></tr>
+        <tr><td><code>DWARF_DARK</code></td><td>机身内置暗场库</td><td>545 帧 · 2.1 GB</td></tr>
+        <tr><td><code>RESTACKED</code></td><td>机身内重新叠加的输出</td><td>2 组（M42 拼图、IC434）</td></tr>
+        <tr><td><code>Solving_Failed</code></td><td>解析失败时的诊断截图</td><td>297 张 png，无科研价值</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h4>单个会话里有什么</h4>
+      <ul style="margin-bottom:0">
+        <li><code>shotsInfo.json</code>：目标名、RA/DEC、单帧曝光、增益、滤镜、CMOS 温度、计划/实际/叠加张数、拼图配置。</li>
+        <li><code>&lt;目标&gt;_30s60_Astro_20261121-030840790_14C.fits</code>：每张光帧；<strong>DATE-OBS 是曝光结束时刻</strong>（FITS 头注释已确认）。</li>
+        <li>同名 <code>.jpg</code> 每帧预览 + <code>Thumbnail\</code> 小图。</li>
+        <li><code>stacked.jpg</code>：设备直出叠加成片。</li>
+        <li>拼图会话另有 <code>stacked-16_*.zip</code>（16 位叠加）与面板内 <code>img_stacked_all.tif</code>。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>导入时必须处理的三件事</h4>
+      <ul style="margin-bottom:0">
+        <li><code>failed_*.fits</code> 是失败帧，<strong>不计入</strong>光帧与曝光。</li>
+        <li>拼图会话要按「一个会话 = 一个夜次一个目标」聚合，面板只是子结构，不能算成多场拍摄。</li>
+        <li>目标名是自由文本（实测有 <code>IC 1805 160</code>、<code>NGC 6530 93</code>、<code>Unknown</code>），需归一后再匹配天体库。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h4>本轮整理范围</h4>
+      <ul style="margin-bottom:0">
+        <li>纳入：Dwarf Mini 深空成片 + 机身原始帧（<code>F:\Astronomy</code>，只读接入）。</li>
+        <li>纳入：银河成片、星轨成片。</li>
+        <li><strong>暂不纳入：佳能历史原始素材</strong>（量大且乱，后续再议）。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>由此产生的两个特殊规则</h4>
+      <ul style="margin-bottom:0">
+        <li>“仅成品”的目标（银河、星轨）<strong>不显示自动累计曝光</strong>，改为可手工记录，并明确标注来源为手工。</li>
+        <li>深空目标的自动识别以<strong>成片水印</strong>为主、以导出原始帧的 FITS 头为辅，两条路结果要能对得上。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 03 调研 -->
+<section id="research">
+  <h2>03 · 现有方案调研（GitHub）</h2>
+  <p>结论不变且更明确：<strong>没有现成开源软件能覆盖你的场景</strong>。它们都假设“有完整原始帧 + FITS 元数据”，而你手上最主要的入口是<strong>带水印的手机成片</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>形态</th><th>可借鉴的点</th><th>关键差距</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>eg013ra1n/athenaeum</strong><span class="sub">~12 ★ · Rust + Tauri · Win/Mac/Linux</span></td>
+          <td>桌面应用</td>
+          <td>拍摄日历（中午到中午分夜）、目标库、器材库、按坐标聚类、重复检测、归档与导出</td>
+          <td>只认 FITS/XISF；<strong>不处理水印成片、不认银河与星轨</strong>；无天体科普；无中文</td>
+        </tr>
+        <tr>
+          <td><strong>bartdelange/astro-library</strong><span class="sub">0 ★ · Python + React · Docker</span></td>
+          <td>自托管 Web</td>
+          <td>对象模型：<strong>目标 → 项目 → 夜次 → 文件</strong>；索引已有库；时间线；用 SIMBAD 补天体信息</td>
+          <td>极早期；需 Docker 常开主机；设备库仍在路线图；不做文件整理；无中英文别名与圈内俗称</td>
+        </tr>
+        <tr>
+          <td><strong>yvinu/fits-manager-suite</strong><span class="sub">0 ★ · Python + SQLite</span></td>
+          <td>NAS 服务</td>
+          <td>FITS 编目、项目与溯源</td>
+          <td>面向 NAS 运维，无桌面体验，不覆盖成片</td>
+        </tr>
+        <tr>
+          <td><strong>Immich / PhotoPrism / LibrePhotos</strong><span class="sub">119.9k / 40.5k / 8.2k ★</span></td>
+          <td>自托管相册</td>
+          <td>成熟相册、EXIF 检索、标签与时间线</td>
+          <td>通用照片逻辑：不懂天体、不懂单帧与累计曝光、<strong>不会读摄影水印</strong></td>
+        </tr>
+        <tr>
+          <td><strong>N.I.N.A. / nightwatch</strong><span class="sub">267 ★ / 98 ★</span></td>
+          <td>采集控制 / 规划</td>
+          <td>拍摄自动化与今夜目标推荐</td>
+          <td>解决“拍什么”，不解决“拍完怎么存”</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note warn">
+    <b>结论：</b>自研一个轻量桌面应用是需求决定的，不是偏好问题。参考 astro-library 的对象模型与 athenaeum 的夜次/器材组织方式，但核心入口要换成“上传成片 → 读水印 → 归目标”。
+  </div>
+</section>
+
+<!-- 04 范围 -->
+<section id="scope">
+  <h2>04 · 范围</h2>
+
+  <h3><span class="num">4.1</span>最小完整旅程（P0）</h3>
+  <ol>
+    <li><strong>建库：</strong>选一个空目录作归档根，软件建立「深空 / 星野」双主线结构。</li>
+    <li><strong>导入成片：</strong>把手机里带水印的深空成片、银河/星轨成片、延时视频批量拖进来。</li>
+    <li><strong>读水印识别：</strong>自动提取目标、日期、曝光，命中的直接归位，没把握的标黄待确认。</li>
+    <li><strong>预览与执行：</strong>看整理计划，确认后按规则改名归位；可回滚。</li>
+    <li><strong>看目标：</strong>深空目标详情页有统计、时间线、版本对比，以及一块「关于这个天体」的名片。</li>
+    <li><strong>看星野：</strong>银河 / 星轨 / 延时三个页签，作品组配记录卡（地点、参数、时长、后期）。</li>
+    <li><strong>增量：</strong>以后每次导出的深空原始帧、新拍的星野成片与视频，走同一套流程并入档案。</li>
+  </ol>
+
+  <h3><span class="num">4.2</span>优先级边界</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>范围</th><th>内容</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tag t-p0">P0 必须</span></td>
+          <td>建库 · 成片导入 · <strong>水印识别</strong> · <strong>多版本合组</strong> · 整理计划与执行回滚 · 目标库与<strong>天体名片</strong> · <strong>星野（银河 / 星轨 / 延时 / 视频）</strong> · 夜次日历 · 器材库 · 成品版本对比 · 四维检索 · 统计 · 收件箱 · <strong>主题与个性化</strong></td>
+          <td>缺任何一项都拼不成完整闭环</td>
+        </tr>
+        <tr>
+          <td><span class="tag t-p1">P1 后续</span></td>
+          <td>深空原始帧导出目录接入 · 手机端直接上传与现场记录 · 天体名片离线全量包 · 拍摄规划 · 年度回顾 · 水印模板自定义 · 社交尺寸导出</td>
+          <td>不阻塞首次整理，但决定长期黏性</td>
+        </tr>
+        <tr>
+          <td><span class="tag t-out">不做</span></td>
+          <td>叠加与后期处理 · 相机与赤道仪控制 · 云同步网盘 · 社区分享与打分 · 视频剪辑</td>
+          <td>已有更专业的工具</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 05 模型 -->
+<section id="model">
+  <h2>05 · 产品模型</h2>
+  <p>中心对象仍是<strong>拍摄夜次</strong>。<strong>深空</strong>挂天体目标与天体名片，<strong>星野</strong>挂银河 / 星轨 / 延时子类与记录卡；夜次是两条主线唯一共享的维度，因此「夜次」单独作为一级浏览入口。</p>
+
+  <h3><span class="num">5.1</span>两条并列主线</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>深空摄影</th><th>星野摄影</th></tr></thead>
+      <tbody>
+        <tr><td>器材</td><td>Dwarf Mini 智能望远镜</td><td>佳能 + 15mm 等广角</td></tr>
+        <tr><td>内容</td><td>M31、NGC7000 等具体天体目标</td><td>银河、星轨、延时（照片与视频）</td></tr>
+        <tr><td>素材形态</td><td>成片（带水印）+ 原始光帧 FITS</td><td>成片图片 + 视频；延时可能保留序列帧</td></tr>
+        <tr><td>元数据</td><td>水印 + shotsInfo.json + FITS 头</td><td>EXIF 为主，其余手工补录</td></tr>
+        <tr><td>归档方式</td><td>目标优先：目标 → 夜次 → 器材</td><td>子类优先：银河/星轨/延时 → 夜次 → 器材</td></tr>
+        <tr><td>核心统计</td><td>累计曝光、光帧数、目标数</td><td>作品数、视频时长、夜次数</td></tr>
+        <tr><td>详情形态</td><td>天体名片 + 我的作品时间线</td><td>作品组记录卡 + 作品时间线</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="num">5.2</span>对象关系</h3>
+  <figure>
+    <svg viewBox="0 0 940 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="对象关系模型">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L7,3 z" fill="#3d5375"/>
+        </marker>
+      </defs>
+
+      <rect class="svg-node-a" x="30" y="34" width="196" height="92" rx="12"/>
+      <text x="128" y="64" text-anchor="middle" fill="#9fe9ff" font-size="13" font-weight="700">天体目标 Target</text>
+      <text x="128" y="86" text-anchor="middle" fill="#93a9c6" font-size="11.5">M31 / NGC7000</text>
+      <text x="128" y="105" text-anchor="middle" fill="#93a9c6" font-size="11.5">仅深空目标</text>
+
+      <rect class="svg-node" x="318" y="28" width="214" height="104" rx="12"/>
+      <text x="425" y="58" text-anchor="middle" fill="#e7eefb" font-size="13" font-weight="700">拍摄夜次 Night</text>
+      <text x="425" y="80" text-anchor="middle" fill="#93a9c6" font-size="11.5">2026-11-22 夜</text>
+      <text x="425" y="99" text-anchor="middle" fill="#6b7d99" font-size="11">日期 · 地点 · 月相</text>
+      <text x="425" y="117" text-anchor="middle" fill="#6b7d99" font-size="11">一次夜次可含多个目标</text>
+
+      <rect class="svg-node-b" x="318" y="196" width="214" height="100" rx="12"/>
+      <text x="425" y="226" text-anchor="middle" fill="#c9b8ff" font-size="13" font-weight="700">拍摄组 CaptureSet</text>
+      <text x="425" y="248" text-anchor="middle" fill="#93a9c6" font-size="11.5">夜次 × 目标 × 器材</text>
+      <text x="425" y="267" text-anchor="middle" fill="#6b7d99" font-size="11">统计的最小单位</text>
+      <text x="425" y="285" text-anchor="middle" fill="#6b7d99" font-size="11">可能只有成品，没有原始帧</text>
+
+      <rect class="svg-node" x="628" y="28" width="200" height="104" rx="12"/>
+      <text x="728" y="58" text-anchor="middle" fill="#e7eefb" font-size="13" font-weight="700">器材组合 Rig</text>
+      <text x="728" y="80" text-anchor="middle" fill="#93a9c6" font-size="11.5">Dwarf Mini</text>
+      <text x="728" y="99" text-anchor="middle" fill="#93a9c6" font-size="11.5">佳能 + 15mm</text>
+      <text x="728" y="117" text-anchor="middle" fill="#6b7d99" font-size="11">预置，可增补</text>
+
+      <rect class="svg-node" x="628" y="196" width="200" height="100" rx="12"/>
+      <text x="728" y="226" text-anchor="middle" fill="#e7eefb" font-size="13" font-weight="700">素材 Asset</text>
+      <text x="728" y="248" text-anchor="middle" fill="#93a9c6" font-size="11.5">FITS / RAW / JPG</text>
+      <text x="728" y="267" text-anchor="middle" fill="#6b7d99" font-size="11">原始帧 或 成品图</text>
+      <text x="728" y="285" text-anchor="middle" fill="#6b7d99" font-size="11">星野仅成品 / 视频</text>
+
+      <rect class="svg-node-c" x="628" y="348" width="200" height="76" rx="12"/>
+      <text x="728" y="376" text-anchor="middle" fill="#ffd79a" font-size="13" font-weight="700">天体名片 Profile</text>
+      <text x="728" y="398" text-anchor="middle" fill="#c2a77f" font-size="11.5">中英文名 · 俗称 · 简介 · 美图</text>
+
+      <line x1="226" y1="80" x2="310" y2="80" stroke="#3d5375" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="425" y1="132" x2="425" y2="188" stroke="#3d5375" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="532" y1="246" x2="620" y2="246" stroke="#3d5375" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="728" y1="132" x2="728" y2="188" stroke="#3d5375" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="128" y1="126" x2="128" y2="386" stroke="#8a6f3f" stroke-width="1.4" stroke-dasharray="4 4"/>
+      <line x1="128" y1="386" x2="620" y2="386" stroke="#8a6f3f" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+
+      <text x="268" y="73" text-anchor="middle" fill="#6b7d99" font-size="10.5">被摄于</text>
+      <text x="440" y="169" fill="#6b7d99" font-size="10.5">包含多个</text>
+      <text x="576" y="239" text-anchor="middle" fill="#6b7d99" font-size="10.5">使用</text>
+      <text x="740" y="169" fill="#6b7d99" font-size="10.5">由…拍摄</text>
+      <text x="392" y="379" text-anchor="middle" fill="#8a6f3f" font-size="10.5">每个目标一张名片（联网获取，本地缓存）</text>
+    </svg>
+    <figcaption>图 1 · 一个夜次可含多个拍摄组；深空拍摄组既有原始帧又有成品，星野拍摄组多为成品与视频。天体名片只挂在深空目标上，星野用记录卡。</figcaption>
+  </figure>
+</section>
+
+<!-- 06 功能需求 -->
+<section id="fr">
+  <h2>06 · 功能需求</h2>
+
+  <h3><span class="num">6.1</span>建库与导入</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-01</span><span class="req-title">首次建库</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>入口</dt><dd>首次启动，或设置中的「新建档案库」。</dd>
+      <dt>处理规则</dt><dd>必须选择一个<strong>空目录</strong>作为归档根，软件在其下创建<strong>深空 / 星野双主线</strong>结构；目录非空时提示改用子目录，<strong>不覆盖任何已有内容</strong>。根路径记录在应用数据中，不写入照片目录。</dd>
+      <dt>结果</dt><dd>生成档案库与数据库，进入空状态首页，主区域只给一个主动作：「导入作品」。</dd>
+      <dt>异常</dt><dd>路径不可写、空间不足、只读盘 → 阻止建库并说明原因；不允许把归档根设成来源目录本身。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-02</span><span class="req-title">导入来源</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>方式</dt><dd>① 拖拽文件夹或多个文件到窗口；② 从手机相册导出到电脑后选文件夹；③ 选择 SD 卡/移动硬盘目录；④ <span class="tag t-p0">P0</span> 插上 Dwarf Mini 后直接选择盘符，只读 <code>\Astronomy</code>（结构见 02 节），自动识别为“原始帧目录”。</dd>
+      <dt>来源类型</dt><dd>Dwarf Mini 成片 / 相机成片 / 普通文件夹 / 原始帧目录（Dwarf 机身）。类型决定后续走水印识别还是读 FITS + shotsInfo.json。</dd>
+      <dt>排除规则</dt><dd>导入时可勾选“跳过非图片文件”“跳过小于 X KB 的缩略图”；本轮默认不扫描佳能历史原始素材，该来源需手动添加才会被处理。</dd>
+      <dt>只读</dt><dd>扫描阶段绝不修改来源文件；只有执行整理时才移动/复制。</dd>
+      <dt>异常</dt><dd>来源离线时保留记录并标记「不可访问」，已入库素材不受影响。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.2</span>识别（本产品的核心能力）</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-03</span><span class="req-title">水印识别成片</span><span class="tag t-p0">P0</span><span class="tag t-new">已用样本验证</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">Dwarf Mini 出图带一条<strong>底部白色信息条</strong>，黑字白底、无艺术字、不压星点——这是最理想的识别目标。它也是你最主要的导入入口，必须做成“拖进来就能认出是什么”。</p>
+
+      <h4 style="margin-top:16px">实测样本（来自参考素材目录）</h4>
+      <div class="tbl-wrap" style="margin:8px 0 10px">
+        <table>
+          <thead><tr><th>目标</th><th>总曝光</th><th>日期 / 时间</th><th>画幅</th><th>右侧附加信息</th></tr></thead>
+          <tbody>
+            <tr><td><strong>NGC 2264</strong></td><td>1小时20分</td><td>2026.11.22 06:27</td><td>2:3 竖构图</td><td>DWARF mini · 30s · 60 · 天文</td></tr>
+            <tr><td><strong>HD 37805</strong></td><td>4小时</td><td>2026.11.22 04:25</td><td>2:3 竖构图</td><td>DWARF mini</td></tr>
+            <tr><td><strong>M 45</strong></td><td>5小时17分</td><td>2026.10.07 05:43</td><td>1:1 方构图</td><td>DWARF mini</td></tr>
+            <tr><td><strong>M 42</strong></td><td>3小时51分</td><td>2026.11.21 09:19</td><td>1:1 方构图</td><td>DWARF mini</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12.5px;color:var(--dim);margin:0 0 12px">信息条结构固定为：左侧第一行目标名、第二行“总曝光 | 日期 时间”；右侧设备标识与拍摄参数。四张样本画幅不同，但信息条始终贴底。</p>
+
+      <dl>
+        <dt>条带定位</dt><dd>不能按固定像素裁切。从图片底部向上扫描<strong>连续的高亮度、低方差行</strong>，定位白条上边界；因此 2:3、1:1、横构图都能处理。找不到白条则判定为“非 Dwarf 水印图”，走元数据或手工。</dd>
+        <dt>识别方式</dt><dd>在<strong>本地</strong>对白条做文字识别，提取目标、总曝光、日期、设备标识；照片不上传任何服务器。</dd>
+        <dt>字段解析</dt>
+        <dd>
+          <ul style="margin:6px 0 0">
+            <li>第一行 → 目标原名（如 <code>M 45</code>、<code>NGC 2264</code>、<code>HD 37805</code>）。</li>
+            <li>第二行按 <code>|</code> 切分 → 总曝光 + 日期时间；<code>4小时</code>、<code>1小时20分</code> 统一换算成分钟数。</li>
+            <li>右侧出现 <code>DWARF mini</code> → 器材自动锁定为 Dwarf Mini。</li>
+            <li>右下角 <code>30s · 60 · 天文</code> 可选解析为单帧曝光、帧数/增益、拍摄模式，解析不出则留空。</li>
+          </ul>
+        </dd>
+        <dt>名称归一</dt><dd>去空格与全半角差异（<code>M 45</code> → <code>M45</code>），统一 <code>NGC/IC/HD/M</code> 前缀；再与目标别名表匹配。样本中的 <code>HD 37805</code> 属于恒星编号，需支持“恒星类目标”，不能只认星云星系。</dd>
+        <dt>曝光来源</dt><dd>水印里的<strong>总曝光直接可用</strong>，解决“深空只有成片也能统计”的问题。标注来源为「水印」；若后续接入原始帧并与自动统计不一致，以原始帧为准并提示差异。</dd>
+        <dt>置信度</dt><dd>低置信度、多候选、文字残缺 → <strong>整条标黄</strong>待确认，绝不静默归类；支持一键把整批设为同一目标。</dd>
+        <dt>模板学习</dt><dd>首个白条识别成功后，记住“白条高度比例 + 两行两列”的版式，同批图片直接套用，减少误差。</dd>
+        <dt>兜底</dt><dd>识别完全失败 → 待整理收件箱，由你手动指定目标；其余字段仍可自动读取。</dd>
+        <dt>结果</dt><dd>该成片获得目标、夜次、器材、总曝光，并进入整理计划预览。</dd>
+      </dl>
+      <div class="note" style="margin-top:6px">
+        <b>时间语义（已确认）：</b>水印上的日期时间是<strong>本次拍摄的结束时间</strong>。所以归档夜次不能直接用这个日期，必须换算：
+        <ul style="margin:8px 0 0">
+          <li>结束时间在 <strong>00:00–12:00</strong> → 夜次归到<strong>前一天</strong>（前半夜那一天）。例：<code>2026.11.21 09:19</code> → 夜次 <strong>2026-11-20</strong>。</li>
+          <li>结束时间在 <strong>12:00–24:00</strong>（少见）→ 夜次记为当天，并标记「时间待核」。</li>
+          <li>接入机身原始帧后，以每帧 <code>DATE-OBS</code> 的实际拍摄时间重新计算夜次；与成片换算结果不一致时提示，并支持按原始帧批量修正。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-04</span><span class="req-title">文件元数据识别</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body">
+      <div class="tbl-wrap" style="margin:8px 0 6px">
+        <table>
+          <thead><tr><th>来源</th><th>读取内容</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td>FITS（Dwarf 原始帧）</td><td><code>OBJECT</code> <code>DATE-OBS</code> <code>EXPTIME</code> <code>GAIN</code> <code>FILTER</code> <code>CAMERA</code> <code>FOCALLEN</code></td><td>目标、夜次、单帧曝光、帧类型。<strong><code>DATE-OBS</code> 是曝光结束时刻</strong>（头注释 <code>Time end of exposure</code> 已确认），首帧开始时间 = <code>DATE-OBS</code> − <code>EXPTIME</code></td></tr>
+            <tr><td><code>shotsInfo.json</code>（Dwarf 会话）</td><td>目标名、RA/DEC、单帧曝光、增益、滤镜、CMOS 温度、计划/实拍/叠加张数、拼图配置</td><td>整场拍摄的权威摘要；拼图会话靠它区分面板与整图</td></tr>
+            <tr><td>JPG / RAW（佳能成片）</td><td>EXIF：<code>DateTimeOriginal</code> <code>Model</code> <code>FocalLength</code> <code>ExposureTime</code> <code>ISO</code></td><td>夜次、器材、焦距判定银河/星轨</td></tr>
+            <tr><td>导出成片（JPG/PNG/TIFF）</td><td>EXIF 可能已被抹除</td><td>优先按同目录关联或水印识别；都不行则进收件箱</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <dl>
+        <dt>未识别</dt><dd>缺少时间或设备 → 待整理收件箱，不阻塞其他文件。</dd>
+        <dt>时间异常</dt><dd>早于 2000 年或晚于当前时间 → 标记「时间可疑」，可一键修正整批。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-05</span><span class="req-title">目标归类与别名归一</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>深空</dt><dd>优先取水印识别结果；有 FITS 时用 <code>OBJECT</code> 或 <code>RA/DEC</code> 校验，两者不一致时提示你选择，不自动覆盖。</dd>
+      <dt>银河</dt><dd>星野子类。按“器材 + 焦距 ≤ 35mm”初判，再细分银心 / 夏季银河 / 银河拱桥 / 自定义。</dd>
+      <dt>星轨</dt><dd>星野子类：照片与视频同属一组；<strong>不做天体名片</strong>，用记录卡（FR-11A）。</dd>
+      <dt>延时</dt><dd>星野子类：一组可含视频成片与序列帧，抽首帧作封面；不做名片，字段见 FR-21。</dd>
+      <dt>同名归一</dt><dd><code>M 31</code>、<code>M31</code>、<code>NGC 224</code> 归并为同一目标，保留全部别名；合并需确认且可撤销。</dd>
+      <dt>新目标</dt><dd>识别到库中没有的目标时，自动创建草稿目标，并尝试联网补全天体名片（见 FR-11）。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.3</span>整理计划与执行</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-06</span><span class="req-title">生成整理计划</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>原则</dt><dd>扫描与识别完成后<strong>不立即动文件</strong>，先产出可审阅的计划。</dd>
+      <dt>内容</dt><dd>每条含：源路径 → 目标路径、判定依据（水印/EXIF/FITS/手工）、目标、器材、夜次、预计体积、冲突标记、置信度。</dd>
+      <dt>分组</dt><dd>按目标分组、组内按夜次展开；顶部汇总“将整理 N 个文件 / 共 X MB / 涉及 M 个目标”。</dd>
+      <dt>可编辑</dt><dd>执行前可改目标、夜次、器材、排除某条；改动实时重算目标路径。</dd>
+      <dt>保存</dt><dd>计划以草稿保存，可关软件后继续审阅。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-07</span><span class="req-title">冲突处理</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body">
+      <div class="tbl-wrap" style="margin:8px 0 6px">
+        <table>
+          <thead><tr><th>冲突</th><th>默认行为</th><th>可选</th></tr></thead>
+          <tbody>
+            <tr><td>目标位置已有<strong>相同内容</strong></td><td>不重复复制，标为「重复」，仅登记关联</td><td>保留两份 / 只留一份</td></tr>
+            <tr><td><strong>同名不同内容</strong></td><td>自动加序号后缀，<strong>绝不覆盖</strong></td><td>手动改名 / 跳过</td></tr>
+            <tr><td>同一图被多次导入</td><td>按内容哈希合并为一条</td><td>指定以哪次为准</td></tr>
+            <tr><td>目标归属不确定</td><td>标黄，默认不执行</td><td>人工指定后转可执行</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <dl><dt>禁止</dt><dd>不提供“全部覆盖”这类一键危险操作。</dd></dl>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-08</span><span class="req-title">执行与校验</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>执行前</dt><dd>二次确认，列出文件数、总容量、是否跨盘。</dd>
+      <dt>执行中</dt><dd>逐文件进度与当前文件名；可暂停、可中止；中止后已完成部分有效，未完成留在原处并标记。</dd>
+      <dt>跨盘</dt><dd>先复制 → 校验大小与哈希 → 通过后才删除源；失败保留源并报错。</dd>
+      <dt>结果</dt><dd>写操作日志；完成汇总“成功 N / 失败 M / 跳过 K”；失败项可重试。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-09</span><span class="req-title">回滚</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>范围</dt><dd>仅撤销<strong>最近一次</strong>已完成的整理，且目标文件未被外部改动。</dd>
+      <dt>行为</dt><dd>按日志逆向移动回原路径；遇到同名冲突立即停止并列出，不强行覆盖。</dd>
+      <dt>限制</dt><dd>已在外部删除或改名的文件无法回滚，界面需明示。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.4</span>深空目标库与天体名片</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-10</span><span class="req-title">目标列表与目标详情</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>列表</dt><dd>卡片网格：目标中文名与编号、代表成品图、累计曝光（或“仅成品”标记）、夜次数、最后拍摄日期、器材图标。</dd>
+      <dt>详情</dt><dd>自上而下：天体名片 → 统计条 → 拍摄时间线 → 成品版本对比。</dd>
+      <dt>统计口径</dt><dd>有原始帧的目标显示自动累计曝光；仅成品的目标显示「—」并提示可手工记录。</dd>
+      <dt>操作</dt><dd>重命名、合并到另一目标、编辑备注、设代表图；合并与重命名写日志。</dd>
+      <dt>空状态</dt><dd>无成品时用原始帧首帧缩略图占位，并提示「尚无成品」。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-11</span><span class="req-title">天体名片（联网科普板块）</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.2 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">点进任意深空目标，除作品之外还能读到“这是什么东西”。要求中文名、英文名、中文圈常用称呼三者齐全，并配可用的高清图。</p>
+      <p><strong>适用范围：</strong>仅深空天体（梅西耶、NGC/IC、Sh2、恒星等）。银河与星轨不对应单一天体，不做名片——银河见 FR-05，星轨改用 FR-11A 的记录卡。</p>
+      <div class="tbl-wrap" style="margin:8px 0 6px">
+        <table>
+          <thead><tr><th>字段</th><th>示例（M31）</th><th>来源</th></tr></thead>
+          <tbody>
+            <tr><td>编号</td><td>M31 / NGC 224</td><td>内置目标表</td></tr>
+            <tr><td>中文名</td><td>仙女座星系</td><td>内置知识库</td></tr>
+            <tr><td>英文名</td><td>Andromeda Galaxy</td><td>内置知识库</td></tr>
+            <tr><td>中文圈常用称呼</td><td>仙女座大星系、仙女星系</td><td>内置知识库，可自行增补</td></tr>
+            <tr><td>类型 / 星座 / 距离 / 视星等</td><td>旋涡星系 / 仙女座 / 约 254 万光年 / 3.4 等</td><td>内置 + 在线校准</td></tr>
+            <tr><td>简介</td><td>2–4 句白话说明，避免百科腔</td><td>内置或在线生成后缓存</td></tr>
+            <tr><td>配图</td><td>2–3 张高清图，附来源与版权说明</td><td>NASA 图像库 / Wikimedia Commons 等公开可用来源</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <dl>
+        <dt>获取时机</dt><dd>首次打开该目标时按需拉取，成功后<strong>本地缓存</strong>；再次打开不再请求。</dd>
+        <dt>断网</dt><dd>显示已缓存内容；无缓存时展示内置的基础字段（常用目标预置），并提示「联网可查看图片与完整介绍」，不显示空白。</dd>
+        <dt>准确性</dt><dd>在线数据与内置数据冲突时，以可核验的来源为准，并在名片底部标注来源与更新时间。</dd>
+        <dt>版权</dt><dd>每张配图必须显示来源与许可信息，不抓取未授权图片；允许你替换成自己的作品作封面。</dd>
+        <dt>隐私</dt><dd>联网只发送目标编号（如 M31），<strong>不上传任何照片与个人信息</strong>。</dd>
+        <dt>可编辑</dt><dd>简介、俗称、配图均可手动修改，修改后不再被在线数据覆盖。</dd>
+      </dl>
+
+      <div class="profile" aria-label="天体名片示例">
+        <div class="hero"><span class="glow"></span>
+          <div class="t"><h5>M31 · 仙女座星系</h5><p>Andromeda Galaxy &nbsp;|&nbsp; 仙女座大星系 / 仙女星系</p></div>
+        </div>
+        <div class="body">
+          <div class="kv"><div class="k">类型</div><div class="v">旋涡星系</div></div>
+          <div class="kv"><div class="k">星座</div><div class="v">仙女座</div></div>
+          <div class="kv"><div class="k">距离</div><div class="v">约 254 万光年</div></div>
+          <div class="kv"><div class="k">视星等</div><div class="v">3.4 等</div></div>
+        </div>
+        <div class="desc">距离银河系最近的大型旋涡星系，也是肉眼可见的最远天体之一。在黑暗环境下用肉眼就能看到一小团模糊光斑，用双筒望远镜即可分辨出明亮的核心。它正以每秒约 110 公里的速度接近银河系。</div>
+        <div class="src">图片与数据来源：NASA / Wikimedia Commons · 更新于 2026-11-23 · 内容可编辑</div>
+      </div>
+      <p style="font-size:12.5px;color:var(--dim);margin:6px 0 0">上图为本版设想的视觉样式，仅用于说明信息层次，不代表最终界面。</p>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-11A</span><span class="req-title">星轨记录卡（代替天体名片）</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.4 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">星轨不对应单一天体，没有“中英文名、距离、星等”可讲。它真正值得记的是<strong>怎么拍出来的</strong>，所以这里放一张现场与手法记录卡。</p>
+      <dl>
+        <dt>字段</dt><dd>拍摄地点（可填坐标）、开始与结束时间、总时长、单张曝光与张数、拍摄方式（连续多张叠加 / 单张长曝）、后期手法（自由填写，如“最大值堆栈 + 地景蒙版”）、备注。</dd>
+        <dt>展示</dt><dd>目标详情页顶部，替代天体名片的位置；可用自己的成片作封面。</dd>
+        <dt>不联网</dt><dd>不拉取外部资料，纯本地记录，避免展示无关的天体信息。</dd>
+        <dt>可复用</dt><dd>同一地点的记录可在下次拍摄时一键带入，减少重复填写。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <h3><span class="num">6.5</span>夜次与器材</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-12</span><span class="req-title">夜次日历与夜次详情</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>定义</dt><dd>以<strong>开始拍摄的那个傍晚</strong>归属夜次：本地时间当日 12:00 至次日 12:00 为一个夜次。有原始帧时用首帧 <code>DATE-OBS</code>；只有水印时用“结束时间减一天”换算（见 FR-03）。凌晨拍的不会因为跨零点被拆成两天。</dd>
+      <dt>日历</dt><dd>月视图，有拍摄的夜晚高亮并显示目标数；点击进入详情。</dd>
+      <dt>详情</dt><dd>日期、地点、月相（离线计算）、天气备注、参与器材、当晚目标与各自帧数/曝光、备注。</dd>
+      <dt>自动生成</dt><dd>由素材元数据自动建立；同一天多来源合并为同一夜次。</dd>
+      <dt>手动</dt><dd>允许先建空夜次记录计划，事后关联素材。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-13</span><span class="req-title">器材组合</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>预置</dt><dd><strong>Dwarf Mini</strong>（一体式）与 <strong>佳能 + 15mm</strong>（机身型号可后填）。</dd>
+      <dt>字段</dt><dd>名称、类型、焦距、光圈、备注；不强制填机身型号。</dd>
+      <dt>统计</dt><dd>每套器材显示参与夜次数、拍摄目标数、累计曝光、最近使用日期。</dd>
+      <dt>用途</dt><dd>既是归档路径的一部分，也是检索与统计维度。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.6</span>成品版本</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-14</span><span class="req-title">版本登记、自动合组与对比</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.3 更新</span></div>
+    <div class="req-body"><dl>
+      <dt>自动合组</dt><dd>同一次拍摄可能导出多张不同版本（裁剪比例不同、后期方式不同）。导入时若<strong>目标相同且水印日期相同</strong>，新图默认并入已有拍摄组作为新版本（v2、v3…），<strong>不新建拍摄</strong>、不重复计入夜次数。</dd>
+      <dt>判定条件</dt><dd>目标一致 + 日期一致 → 同一拍摄组；目标不同或日期不同 → 新建。判定结果在整理预览中可见，可手动拆开或合并。</dd>
+      <dt>版本差异</dt><dd>每个版本可自由标注差异（如“16:9 裁剪”“强化 OIII”“重做去噪”），并提供常用标签一键选择；不做强制字段。</dd>
+      <dt>最终版</dt><dd>可将某版标为「最终版」（同一目标仅一个）；标记新最终版时旧版自动降为普通版本，不删文件。</dd>
+      <dt>字段</dt><dd>版本名、文件、来源拍摄组（可多选）、处理日期、使用软件（自由填写）、差异标签与备注。</dd>
+      <dt>对比</dt><dd>同目标多版本并排查看或闪烁切换；缩略图与大图都支持。</dd>
+      <dt>仅成品目标</dt><dd>银河/星轨的版本可直接从导入的成片生成，无需原始帧。</dd>
+      <dt>排序</dt><dd>版本默认按导入时间编号；可手动拖拽调整顺序，最终版始终置顶。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.7</span>检索、统计与兜底</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-15</span><span class="req-title">分类 + 四维联合检索</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>条件</dt><dd>先选类别（深空 / 星野）与星野子类（银河 / 星轨 / 延时），再叠加目标、日期范围、器材、素材类型（原始 / 成品 / 视频）、版本标记、评级；任意组合，实时刷新。</dd>
+      <dt>排序</dt><dd>拍摄日期、累计曝光、导入时间、评级。</dd>
+      <dt>结果</dt><dd>缩略图网格或表格切换；多选可批量评级、批量备注。</dd>
+      <dt>搜索框</dt><dd>同时匹配目标名、别名、俗称、备注、文件名。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-16</span><span class="req-title">统计概览</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>首页</dt><dd>深空目标数、夜次数、深空累计曝光、最近一次拍摄；星野另列作品数与视频时长，不与深空曝光混算。</dd>
+      <dt>口径</dt><dd>所有曝光统计遵循统一规则，界面注明“仅计 light 原始帧”；仅成品目标不计入总曝光，单列标注。</dd>
+    </dl></div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-17</span><span class="req-title">待整理收件箱</span><span class="tag t-p0">P0</span></div>
+    <div class="req-body"><dl>
+      <dt>进入条件</dt><dd>水印与元数据都识别失败、目标无法判定、日期异常且未修正。</dd>
+      <dt>呈现</dt><dd>独立入口并显示未处理数量；每项列出缺失字段与建议值，可批量套用。</dd>
+      <dt>完成</dt><dd>补录后重新进入整理计划；也可标「暂不整理」，长期保留。</dd>
+      <dt>禁止</dt><dd>收件箱内文件不参与任何自动统计。</dd>
+    </dl></div>
+  </div>
+
+  <h3><span class="num">6.8</span>外观与个性化</h3>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-18</span><span class="req-title">主题与个性化</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.2 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">目标是“像一本自己的星空画册”，而不是一个后台管理系统。简洁优先，个性做在能被看见的地方。</p>
+      <dl>
+        <dt>主题</dt><dd>深色 / 浅色 / 跟随系统；默认深色（夜晚使用不刺眼）。</dd>
+        <dt>强调色</dt><dd>提供 4–6 个预设（星青、暗紫、暖金、月白等），可自定义。</dd>
+        <dt>首页</dt><dd>模块可显隐与排序（最近作品、深空目标、星野入口、夜次日历、统计条）；可设一张自己的作品作首页大图。</dd>
+        <dt>目标卡</dt><dd>可自选封面图、切换卡片信息密度（舒适/紧凑）。</dd>
+        <dt>图片浏览</dt><dd>支持全屏、缩放、切换缩略图；不驻留多余控件，浏览时自动隐藏。</dd>
+        <dt>动效</dt><dd>轻量过渡，提供「减少动效」开关。</dd>
+        <dt>不做</dt><dd>不做换肤市场、不做复杂布局编辑器——个性化只保留“能立刻看到差别”的少数开关。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-19</span><span class="req-title">字段可随时手工修改与补充</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.5 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">银河、星轨这类只有成片的素材，年份跨度、拍摄地点、单张参数都读不出来；你的要求是<strong>先不录入，软件里随时可改，以后自己一个个补</strong>。因此所有字段都必须可手工编辑，且手工值优先级最高。</p>
+      <dl>
+        <dt>可编辑字段</dt><dd>夜次日期、目标、器材、单帧曝光与张数、累计曝光、拍摄地点、后期手法、评级、备注、封面图。</dd>
+        <dt>优先级</dt><dd>手工值 &gt; 水印识别 &gt; FITS/shotsInfo.json &gt; EXIF &gt; 文件名。</dd>
+        <dt>锁定</dt><dd>手工改过的字段标记「已手工设置」，重新扫描或联网更新<strong>不得覆盖</strong>；可一键恢复为自动值。</dd>
+        <dt>批量</dt><dd>可框选多条素材一次性改目标/器材/日期；改动写日志，可撤销。</dd>
+        <dt>允许留空</dt><dd>信息缺失时留空，界面显示「未填写」，不阻塞入库，也不显示为 0。</dd>
+        <dt>生效范围</dt><dd>详情面板内直接改、保存即生效；统计与检索立即更新；若涉及目录名变更，按 7.5 的不可逆操作处理。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-20</span><span class="req-title">增量同步（连上机身，一键入库）</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.6 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">Dwarf 机身容量有限、随时可能清空，所以「先拍、清机身、以后再归档」是常态。软件必须能以<strong>会话目录为单位</strong>做增量同步：成片你自己拖进来，原始素材点一次「同步」补齐，不用记哪一晚拷过、哪一晚没拷。</p>
+      <dl>
+        <dt>你的操作</dt><dd>① 把带水印的成片拖进软件（或丢进 <code>_收件箱</code>）；② USB 连上 Dwarf；③ 点顶部「同步」按钮。剩下的全自动。</dd>
+        <dt>自动检测</dt><dd>扫描 <code>F:\Astronomy</code> 下的会话目录、拼图面板与 <code>CALI_FRAME</code> 校准场，和素材库已有记录比对，只处理「没同步过」和「上次没拷完」的。校准场新增的会自动补进 <code>_dwarf mini校准场\</code>；<code>DWARF_DARK</code> 暗场库<strong>只保留首次拷贝，之后不参与自动同步</strong>。</dd>
+        <dt>只拷有用的</dt><dd>拷光帧 FITS + 会话里的 <code>shotsInfo.json</code> + <code>stacked.jpg</code>（作参考缩略图）；<strong>跳过 <code>failed_*.fits</code></strong>，跳过每帧自带的 jpg 预览与 <code>Thumbnail\</code> 小图（同一帧重复两份，无归档价值），跳过 <code>Solving_Failed</code> 诊断图。</dd>
+        <dt>自动归档</dt><dd>读 <code>shotsInfo.json</code> 的 target / exp / gain 与首帧 <code>DATE-OBS − EXPTIME</code> 换算夜次，直接落到 <code>{目标}\{夜次}_{器材}\raw\</code>；目标名归一（<code>IC 1805 160</code> → <code>IC1805</code>），认不出的先放 <code>_收件箱</code> 并提示。</dd>
+        <dt>去重与断点</dt><dd>以「会话目录名 + 文件相对路径 + 文件大小」判断是否已存在；中途拔线、空间不足、关软件后再次点击，只补缺失文件，不重复拷、不重复统计。</dd>
+        <dt>空间预检</dt><dd>开始前算出本次待拷容量，剩余空间不够就先提示所需容量并禁止开始，绝不拷到一半撑爆。</dd>
+        <dt>写历史</dt><dd>每拷一个文件都写一行到 <code>_历史记录\素材库历史记录.csv</code>（见 7.6）；结束时汇总「本次新增 N 个文件 / M 个目标 / X GB」。</dd>
+        <dt>成片与原始帧配对</dt><dd>成片按水印里的目标 + 夜次自动挂到对应的 <code>{目标}\{夜次}_*\final\</code>；配不上时挂在目标层并提示「未找到对应原始帧」，不阻断入库。</dd>
+        <dt>可安全删除清单（可选）</dt><dd>同步结果页提供<strong>可勾选项「生成可安全删除清单」</strong>，不勾选就不生成。勾选后按会话输出一份清单（会话名、文件数、已校验状态），供你在设备端对照清理；<strong>软件绝不自动删除机身文件</strong>。</dd>
+        <dt>不做</dt><dd>不自动删除机身文件（清机身始终由你在设备端决定）；同步过程不联网，全程本地。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="req">
+    <div class="req-head"><span class="req-id">FR-21</span><span class="req-title">星野摄影（银河 / 星轨 / 延时）</span><span class="tag t-p0">P0</span><span class="tag t-new">v0.7 新增</span></div>
+    <div class="req-body">
+      <p style="margin-top:10px">星野与深空是<strong>两条并列主线</strong>：文件形态、元数据与统计口径都不同，不能混进“目标库”。星野以广角成片和视频为主，几乎没有可读的原始帧，因此用<strong>记录卡</strong>代替天体名片。</p>
+      <dl>
+        <dt>子类</dt><dd>银河（单张 / 接片）、星轨（照片 / 视频）、延时（序列帧 / 视频成片）；子类决定归档目录、字段与筛选方式。</dd>
+        <dt>归档</dt><dd><code>星野\{银河|星轨|延时}\{夜次}_{器材}\</code>，内部按 <code>final</code> / <code>frames</code> / <code>clip</code> 分目录（见 7.1）。</dd>
+        <dt>识别</dt><dd>优先读 EXIF（拍摄时间、机身、镜头、焦距、光圈、ISO、快门）；水印只作补充；读不到就留空，不猜。</dd>
+        <dt>记录卡</dt><dd>每个作品组一张：地点、月相、光害、器材、单张参数、张数、总时长、后期手法、备注；星轨额外记堆栈张数与累计时长，延时记序列帧数与视频时长。</dd>
+        <dt>视频</dt><dd>支持 mp4 / mov 入库，读取时长、分辨率、帧率；自动抽首帧作封面；可在软件内播放，不做剪辑与转码。</dd>
+        <dt>统计</dt><dd>不参与深空的累计曝光统计；按作品数、视频时长、夜次数统计；手工填写的“单张曝光 × 张数”只作估算并标注来源。</dd>
+        <dt>页面</dt><dd>独立「星野」入口，内部三个页签：银河 / 星轨 / 延时；时间线按夜次倒序，缩略图优先，视频显示时长角标。</dd>
+        <dt>不做</dt><dd>不拆解延时序列、不转码、不剪辑、不计算星轨叠加。</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+<section id="rules">
+  <h2>07 · 共享规则</h2>
+
+  <h3><span class="num">7.1</span>归档结构（深空 / 星野双主线）</h3>
+  <p>素材库固定放在 <code><素材库根目录></code>，<strong>只放素材，不放程序</strong>；软件本体放在 <code><项目目录></code>。一级只分<strong>深空</strong>与<strong>星野</strong>两条主线：深空下目标在最外层；星野下先分子类（银河 / 星轨 / 延时），再按夜次与器材。这样在资源管理器里翻也符合直觉：先想“深空还是星野”，再想“哪个目标 / 哪类作品”。</p>
+  <div class="card">
+    <pre style="margin:0;font-family:Consolas,'SFMono-Regular',monospace;font-size:12.5px;line-height:1.9;color:#a9c6dd;overflow-x:auto"><素材库根目录>\
+├── _历史记录\素材库历史记录.csv   ← 每次增删都写一行，可追溯
+├── _dwarf mini校准场\            ← 深空校准场（暗场库仅首次）
+├── _收件箱\                       ← 识别不了的先落这里
+├── 深空\                          ← 主线一：Dwarf 目标
+│   ├── M31_仙女座星系\
+│   │   ├── 2026-09-12_DWARFMINI\
+│   │   │   ├── final\             ← 成片（带水印原图）
+│   │   │   └── raw\               ← 光帧 FITS（只拷可堆栈的）
+│   │   └── 2026-11-20_DWARFMINI\
+│   │       └── final\
+│   └── NGC7000_北美洲星云\
+└── 星野\                          ← 主线二：广角
+    ├── 银河\
+    │   └── 2026-07-18_CANON15MM\
+    │       └── final\             ← 单张或接片成片
+    ├── 星轨\
+    │   └── 2026-08-02_CANON15MM\
+    │       ├── final\             ← 星轨堆栈成片
+    │       └── clip\              ← 星轨延时视频
+    └── 延时\
+        └── 2026-10-05_CANON15MM\
+            ├── frames\            ← 序列帧（可选保留）
+            ├── clip\              ← 成片视频 mp4
+            └── final\             ← 封面 / 首帧</pre>
+  </div>
+  <p style="margin-top:14px">文件命名：<code>{夜次日期}_{代码}_{器材代码}_{类型}_{序号}.{ext}</code>，如深空 <code>2026-11-20_M31_DWARFMINI_final_001.jpg</code>；星野代码为 <code>MW</code> / <code>STARTRAIL</code> / <code>TIMELAPSE</code>，类型为 <code>final</code> / <code>frames</code> / <code>clip</code>，如 <code>2026-07-18_MW_CANON15MM_final_001.jpg</code>、<code>2026-10-05_TIMELAPSE_CANON15MM_clip_001.mp4</code>。序号在单个作品组内连续。</p>
+  <div class="note">
+    <b>原则：</b>目录本身就能讲清“什么目标、哪天、什么设备”。数据库只负责加速检索与统计；即使软件没了，档案依然可读。
+  </div>
+
+  <h3><span class="num">7.2</span>曝光口径</h3>
+  <ul>
+    <li><strong>有原始帧：</strong>累计曝光 = Σ（单帧曝光秒 × 帧数），仅计 <strong>light</strong> 帧；校准帧、叠加中间文件、成品导出、<code>failed_*.fits</code> 不计。Dwarf 机身高 8,208 张可用光帧实测约 90.9 小时，可作为导入后的校验基准。</li>
+    <li><strong>深空仅有成片：</strong>直接采用水印中的<strong>总曝光</strong>，标注「来源：水印」；接入原始帧后以自动统计为准，并在两者不一致时提示差异，不静默覆盖。</li>
+    <li><strong>手工值最高优先：</strong>任何手工填写的曝光、日期、器材都覆盖自动结果，并标注「来源：手工」（见 FR-19）。</li>
+    <li><strong>星野（银河 / 星轨 / 延时）：</strong>不参与累计曝光统计；有 EXIF 时显示单张参数与总时长，视频显示时长，缺信息显示「—」；手工填“单张曝光 × 张数”只生成估算值并标注「手工记录」。</li>
+    <li>相同内容文件只计一次；重新扫描不会重复累加。</li>
+    <li>帧类型无法判定时显示「未计入」并给原因，不静默忽略。</li>
+    <li>格式统一为「X 小时 Y 分钟」，小于 1 小时显示「Y 分钟」。</li>
+  </ul>
+
+  <h3><span class="num">7.3</span>素材状态</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>状态</th><th>含义</th><th>参与统计</th><th>可执行</th></tr></thead>
+      <tbody>
+        <tr><td>待整理</td><td>已扫描、未纳入档案</td><td>否</td><td>补录、套用建议、排除</td></tr>
+        <tr><td>待确认</td><td>识别结果置信度低</td><td>否</td><td>指定目标/日期、批量套用</td></tr>
+        <tr><td>已入库</td><td>已归位并登记</td><td>是</td><td>改元数据、评级、撤销上次整理</td></tr>
+        <tr><td>已排除</td><td>废片或无关文件</td><td>否</td><td>恢复、删除记录</td></tr>
+        <tr><td>缺失</td><td>记录在但磁盘上找不到</td><td>否</td><td>重新定位、移除记录</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="num">7.4</span>联网与隐私</h3>
+  <ul>
+    <li>联网只用于：拉取天体名片资料与公开图片、校准基础天体数据。</li>
+    <li>请求内容仅含目标编号或名称，<strong>不上传照片、路径、个人信息</strong>。</li>
+    <li>水印识别与元数据解析全部在本地完成；断网可用。</li>
+    <li>所有外部图片与数据必须在界面标注来源；用户可手动替换与锁定，锁定后不被在线更新覆盖。</li>
+  </ul>
+
+  <h3><span class="num">7.5</span>不可逆操作</h3>
+  <p>以下动作必须二次确认、写日志并说明后果：移动/重命名文件、合并目标、标记最终版、标为排除、删除记录、覆盖手工编辑过的天体名片。</p>
+
+  <h3><span class="num">7.6</span>素材库操作日志（历史记录）</h3>
+  <p>只要软件对素材库做了<strong>任何写操作</strong>，就同时追加一行记录。目的是：机身清空以后，你依然查得到「哪个文件、什么时候、从哪儿来、是加进来还是删掉的」。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>字段</th><th>示例</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>时间</td><td>2026-11-23 17:53:47</td><td>本机时间，精确到秒</td></tr>
+        <tr><td>操作</td><td>新增 / 删除 / 移动 / 改名 / 覆盖</td><td>删除与覆盖同时保留原路径</td></tr>
+        <tr><td>类别</td><td>校准场-bias / 深空光帧 / 深空成片 / 星野成片 / 星野视频</td><td>便于按类型筛选</td></tr>
+        <tr><td>文件相对路径</td><td><code>_dwarf mini校准场\bias\cam_0\bias_gain_2_bin_1.fits</code></td><td>相对素材库根，换电脑也能对上</td></tr>
+        <tr><td>大小KB</td><td>4053</td><td>删除时记录删除前的体积</td></tr>
+        <tr><td>来源</td><td><code>F:\Astronomy\CALI_FRAME\bias</code></td><td>原始位置，手工上传记为「手工上传」</td></tr>
+        <tr><td>批次</td><td>首次拷贝校准场</td><td>同一次同步共用一个批次名，可整批查看</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li>文件格式：UTF-8 带 BOM 的 CSV，Excel 双击直接可读；<strong>只追加、不重写</strong>，人工改过的行保持原样。</li>
+    <li>软件内置「历史记录」页：按时间倒序，可按操作 / 类别 / 批次筛选，支持导出。</li>
+    <li>已写入首批 717 条（校准场首次拷贝，批次「首次拷贝校准场」），外加 1 条目录改名记录（<code>_校准场</code> → <code>_dwarf mini校准场</code>）。</li>
+    <li>日志只是记录，不影响素材本体；日志误删不会损坏档案。</li>
+  </ul>
+</section>
+
+<!-- 08 异常 -->
+<section id="edge">
+  <h2>08 · 异常与边界</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h4>水印识别</h4>
+      <ul style="margin-bottom:0">
+        <li>水印被裁掉 → 退回元数据与手工。</li>
+        <li>水印压在星点上、对比度低 → 标待确认，不猜。</li>
+        <li>同一张图有多个目标文字（如拼接图）→ 提示拆分为多个素材。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>联网与资料</h4>
+      <ul style="margin-bottom:0">
+        <li>断网 → 用缓存或内置基础字段，不显示空白页。</li>
+        <li>图片源失效 → 保留文字，隐藏破图并提示「配图暂不可用」。</li>
+        <li>目标冷门、查不到 → 显示编号与“暂无详细资料”，允许你补写。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>磁盘与来源</h4>
+      <ul style="margin-bottom:0">
+        <li>来源盘未插 → 标记离线，不丢记录。</li>
+        <li>移动中拔出硬盘 → 中止当前文件，未校验的文件不计为成功。</li>
+        <li>空间不足 → 执行前预检，不够则禁止开始并给出所需容量。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>数据与规模</h4>
+      <ul style="margin-bottom:0">
+        <li>数据库损坏 → 支持“重建索引”重新扫描归档根。</li>
+        <li>卸载软件 → 照片与目录结构不受影响。</li>
+        <li>单次 1 万文件以上 → 显示进度并可取消，界面不卡死。</li>
+        <li>缩略图按需生成并缓存，不一次性全量生成。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 09 待确认 -->
+<section id="open">
+  <h2>09 · 待确认问题</h2>
+  <p>本轮待确认项已全部关闭，保留结论以便追溯。</p>
+  <ul class="qlist">
+    <li><span class="qid">Q1</span><span><strong>已解决。</strong>机身原始文件已实测：<code>\Astronomy</code> 共 34 次拍摄、8,208 张可用光帧；FITS 头确认 <code>DATE-OBS</code> 为<strong>曝光结束时刻</strong>，「结束时间减一天」的夜次换算是正确的。</span></li>
+    <li><span class="qid">Q2</span><span><strong>已解决。</strong>原始帧<strong>要</strong>拷进素材库，但<strong>只拷可堆栈的光帧</strong>，<code>failed_*.fits</code> 与预览小图一律跳过。已写入 FR-20 与 7.1。</span></li>
+    <li><span class="qid">Q3</span><span><strong>已解决。</strong>银河 / 星轨的数量与年份跨度本轮不录入，做成随时可手工补填的字段（FR-19），不因此分批。</span></li>
+    <li><span class="qid">Q4</span><span><strong>已解决。</strong>天体名片配图：<strong>NASA 官方图优先</strong>，没有再用爱好者作品；每张图都标注来源与许可，可手工替换并锁定（7.4）。</span></li>
+    <li><span class="qid">Q5</span><span><strong>已解决。</strong>机身 8,208 张光帧<strong>等软件做好后再拷</strong>，由软件同步写入，保证历史记录与元数据完整。本轮只保留已完成的校准场 717 个 / 2.8 GB。</span></li>
+    <li><span class="qid">Q6</span><span><strong>已解决。</strong>「可安全删除清单」做成同步结果页的<strong>可勾选项</strong>：需要时才勾选生成，不勾选不产出。软件不自动删除机身文件。</span></li>
+    <li><span class="qid">Q7</span><span><strong>已解决。</strong>拼图会话 raw <strong>保留面板子目录</strong>（一会话一目录，内部按 (1)(2) 面板分层），不做平铺。</span></li>
+    <li><span class="qid">Q8</span><span><strong>已解决。</strong><code>DWARF_DARK</code> 暗场库（545 帧 / 2.1 GB）<strong>只保留首次拷贝</strong>，不参与自动同步；bias / flat / dark 的新增仍会自动补齐。</span></li>
+    <li><span class="qid">Q9</span><span><strong>已解决。</strong>归档一级目录拆成<strong>深空</strong>与<strong>星野</strong>两条并列主线；星野下分银河 / 星轨 / 延时（含照片与视频），统计口径与深空分开（见 FR-21、5.1 与 7.1）。</span></li>
+  </ul>
+  <div class="note warn">
+    <b>下一步：</b>所有待确认项已关闭。进入交互与视觉设计（页面结构、关键流程线框图）；在此之前不写代码。
+  </div>
+</section>
+
+<footer>
+  <span>星空摄影档案管理软件 · 产品需求文档 v0.7</span>
+  <span>需求定义阶段 · 2026-11-23</span>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星空摄影档案管理软件 · 交互与线框图 v0.2</title>
+<style>
+  :root{
+    --bg:#070b16;
+    --panel:#0e1524;
+    --line:#1e2a40;
+    --line-soft:#172134;
+    --text:#e7eefb;
+    --muted:#8fa2be;
+    --dim:#6b7d99;
+    --cyan:#6ee7ff;
+    --violet:#a78bfa;
+    --amber:#f5c26b;
+    --rose:#fb7185;
+    --green:#5eead4;
+    --radius:14px;
+    --max:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 620px at 78% -12%, rgba(110,231,255,.10), transparent 62%),
+      radial-gradient(900px 520px at 12% 4%, rgba(167,139,250,.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.75;
+    font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px 96px}
+
+  header{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  h1{font-size:38px;line-height:1.22;margin:16px 0 10px;letter-spacing:-.01em;font-weight:700}
+  h1 span{background:linear-gradient(100deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:700px;font-size:15.5px;margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-size:12px;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.02);padding:5px 11px;border-radius:999px}
+  .chip b{color:var(--text);font-weight:600}
+
+  nav{position:sticky;top:0;z-index:20;background:rgba(7,11,22,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);margin-bottom:44px}
+  nav .inner{max-width:var(--max);margin:0 auto;padding:10px 28px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  nav .inner::-webkit-scrollbar{display:none}
+  nav a{flex:0 0 auto;font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:7px;white-space:nowrap}
+  nav a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+
+  section{margin:0 0 56px;scroll-margin-top:64px}
+  h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  h3{font-size:19px;margin:34px 0 10px;font-weight:650;letter-spacing:-.005em}
+  h3 .num{color:var(--violet);font-variant-numeric:tabular-nums;margin-right:8px;font-size:15px}
+  h4{font-size:15px;margin:22px 0 8px;font-weight:650;color:#cfe0f7}
+  p{margin:8px 0 14px;color:#c7d5ea}
+  ul,ol{margin:8px 0 16px;padding-left:22px;color:#c7d5ea}
+  li{margin:5px 0}
+  strong{color:#fff;font-weight:650}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:12.5px;background:rgba(110,231,255,.08);border:1px solid rgba(110,231,255,.16);color:#bfeaf7;padding:1px 6px;border-radius:5px}
+
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+
+  .note{border-left:2px solid var(--violet);background:rgba(167,139,250,.06);padding:13px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:13.5px;color:#d4ddf0}
+  .note b{color:var(--violet)}
+  .warn{border-left-color:var(--amber);background:rgba(245,194,107,.055)}
+  .warn b{color:var(--amber)}
+
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:14px 0 20px;background:var(--panel)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:600px}
+  th{text-align:left;font-weight:650;color:#dbe8fa;background:rgba(255,255,255,.035);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12.5px}
+  td{padding:11px 14px;border-bottom:1px solid var(--line-soft);color:#c2d1e7;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+
+  /* ---------- 线框组件 ---------- */
+  .wf{background:#080d19;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0}
+  .wf-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line-soft);font-size:11.5px;color:var(--dim)}
+  .wf-bar i{width:9px;height:9px;border-radius:50%;background:#26344c;display:inline-block}
+  .wf-bar .t{margin-left:8px;letter-spacing:.02em}
+  .wf-body{padding:16px;display:flex;gap:12px;min-height:300px}
+  .wf-body.col{flex-direction:column}
+  @media(max-width:820px){.wf-body{flex-direction:column}.side{width:100%!important;flex:auto!important}}
+
+  .side{width:164px;flex:0 0 164px;display:flex;flex-direction:column;gap:8px}
+  .navi{height:30px;border-radius:7px;display:flex;align-items:center;padding:0 10px;font-size:11.5px;color:#8095b4;border:1px solid transparent}
+  .navi.on{background:rgba(110,231,255,.10);border-color:rgba(110,231,255,.30);color:#a9ecfa}
+  .navi.sm{height:26px;font-size:11px;color:#5f7292}
+  .main{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+
+  .ph{border:1px dashed #2f405c;border-radius:8px;background:rgba(255,255,255,.012);color:#66799a;font-size:11.5px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;line-height:1.6;min-height:34px}
+  .ph.solid{border-style:solid;border-color:#243450;background:#0f1727;color:#a9c6dd}
+  .ph.acc{border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.055);color:#9fe8f7}
+  .ph.img{border-style:solid;border-color:#22304a;background:linear-gradient(135deg,#0d1626,#111c2f);color:#5f7292}
+  .row{display:flex;gap:10px;align-items:stretch}
+  .grow{flex:1;min-width:0}
+  .stack{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+  .hint{font-size:11px;color:#5f7292;letter-spacing:.02em}
+
+  .wft{width:100%;border-collapse:collapse;font-size:11.5px;min-width:0}
+  .wft th{padding:7px 8px;background:rgba(255,255,255,.03);color:#8fa2be;border-bottom:1px solid var(--line-soft);font-weight:600;white-space:nowrap}
+  .wft td{padding:7px 8px;border-bottom:1px solid rgba(30,42,64,.6);color:#7286a4;white-space:nowrap}
+  .wft tr:last-child td{border-bottom:none}
+
+  .dotp{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 8px rgba(94,234,212,.7)}
+  .stat{border:1px solid #243450;background:#0f1727;border-radius:8px;padding:9px 11px;font-size:11px;color:#7286a4;display:flex;flex-direction:column;gap:2px}
+  .stat b{font-size:16px;color:#dbe8fa;font-weight:650;line-height:1.3}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal div{height:20px;border-radius:4px;background:#0f1727;border:1px solid #1e2a40}
+  .cal div.on{background:rgba(110,231,255,.22);border-color:rgba(110,231,255,.45)}
+
+  /* 标注 */
+  .ann{list-style:none;padding:0;margin:10px 0 26px;display:grid;gap:6px;font-size:12.5px;color:#a9bbd4}
+  .ann li{display:flex;gap:9px;align-items:flex-start;margin:0}
+  .ann b{flex:0 0 18px;height:18px;border-radius:50%;background:rgba(110,231,255,.12);color:#6ee7ff;font-size:11px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(110,231,255,.3);margin-top:2px;font-weight:600}
+
+  /* 流程 */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 6px}
+  .fstep{border:1px solid #2a3a55;background:#101a2b;border-radius:8px;padding:7px 11px;font-size:12px;color:#b7cbe4}
+  .fstep.acc{border-color:rgba(110,231,255,.4);background:rgba(110,231,255,.06);color:#a9ecfa}
+  .fstep.dec{border-color:rgba(245,194,107,.4);background:rgba(245,194,107,.05);color:#f2d19a;border-radius:8px}
+  .arrow{color:#5f7292;font-size:12px}
+
+  .tree{background:#080d19;border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-family:Consolas,"SFMono-Regular",monospace;font-size:12.5px;line-height:1.95;color:#a9c6dd;overflow-x:auto;margin:14px 0}
+  .tree .c{color:#5f7292}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin:6px 0 0}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .lg{width:22px;height:12px;border-radius:3px;display:inline-block}
+  .lg.dash{border:1px dashed #2f405c;background:rgba(255,255,255,.012)}
+  .lg.solid{border:1px solid #243450;background:#0f1727}
+  .lg.acc{border:1px solid rgba(110,231,255,.45);background:rgba(110,231,255,.08)}
+
+  footer{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>Interaction Design · 交互与视觉设计</div>
+  <h1>星空摄影档案管理软件<br><span>Wireframes &amp; Interaction</span></h1>
+  <p class="sub">在 PRD v0.7 的规则之上，把页面结构、信息层级与关键流程画出来。全库分<strong>深空</strong>与<strong>星野</strong>两条并列主线；本阶段只确定“有什么、放在哪、点了会怎样”，确认后再做高保真视觉稿。</p>
+  <div class="meta">
+    <span class="chip">版本 <b>v0.2（线框图）</b></span>
+    <span class="chip">依据 <b>PRD v0.7</b></span>
+    <span class="chip">主线 <b>深空 / 星野</b></span>
+    <span class="chip">素材库 <b><素材库根目录></b></span>
+    <span class="chip">形态 <b>Windows 桌面 · 深色优先</b></span>
+    <span class="chip">日期 <b>2026-11-23</b></span>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#principles">设计原则</a>
+  <a href="#ia">信息架构</a>
+  <a href="#shell">全局框架</a>
+  <a href="#home">首页</a>
+  <a href="#target">深空目标</a>
+  <a href="#nightscape">星野</a>
+  <a href="#library">素材库</a>
+  <a href="#sync">同步</a>
+  <a href="#history">历史记录</a>
+  <a href="#viewer">查看与编辑</a>
+  <a href="#flows">关键流程</a>
+  <a href="#states">状态细节</a>
+  <a href="#next">下一步</a>
+</div></nav>
+
+<!-- 01 -->
+<section id="principles">
+  <h2>01 · 设计原则</h2>
+  <div class="grid g3">
+    <div class="card"><h4 style="margin-top:0">作品优先</h4><p style="margin:0;font-size:13.5px">首屏就是自己的照片，不是表格和数字。统计、目录、日志都退到第二层。</p></div>
+    <div class="card"><h4 style="margin-top:0">一眼看懂</h4><p style="margin:0;font-size:13.5px">每个页面只回答一个问题：首页“我拍过什么”／目标页“这个天体我拍了多少”／同步页“这次要拷什么”。</p></div>
+    <div class="card"><h4 style="margin-top:0">夜景友好</h4><p style="margin:0;font-size:13.5px">默认深色、低亮度、弱对比边框；夜里开机不刺眼，不做大块纯白背景。</p></div>
+  </div>
+  <ul>
+    <li><strong>少开关：</strong>高频操作（看片、同步、改字段）最多两步；低频设置折叠进「设置」。</li>
+    <li><strong>颜色只用于状态：</strong>星青＝可操作／已连接，暗紫＝信息与联想，暖金＝需要注意，玫红＝危险或失败。</li>
+    <li><strong>图先于字：</strong>列表里每行都有缩略图；目标卡必须有封面，没有封面用占位星图。</li>
+    <li><strong>不做仪表盘：</strong>不用大量图表堆砌，统计只用一行数字条。</li>
+  </ul>
+</section>
+
+<!-- 02 -->
+<section id="ia">
+  <h2>02 · 信息架构与全局框架</h2>
+  <p>左侧固定导航，右侧内容区；顶部只放三样东西：搜索、同步、主题。导航按两条主线分开：<strong>深空</strong>按目标浏览，<strong>星野</strong>按银河/星轨/延时浏览；所有页面共享同一套表格、筛选条与详情抽屉。</p>
+  <div class="tree">星空摄影档案管理软件
+├── 首页            <span class="c">最近作品 / 统计条 / 深空目标 / 星野入口 / 夜次月历</span>
+├── 深空            <span class="c">目标卡片 → 目标详情（天体名片 + 我的作品）</span>
+│   └── 目标详情    <span class="c">M31 等；成片 + raw；累计曝光</span>
+├── 星野            <span class="c">银河 / 星轨 / 延时 三个页签</span>
+│   └── 作品组      <span class="c">记录卡 + 作品时间线 + 视频播放</span>
+├── 夜次            <span class="c">两条主线共用的“那一晚”，跨类型浏览</span>
+├── 素材库          <span class="c">全部素材表 + 状态筛选（待整理/待确认/已入库/已排除/缺失）</span>
+├── 同步            <span class="c">连接机身 → 扫描 → 预检 → 拷贝 → 结果与清单（仅深空）</span>
+├── 历史记录        <span class="c">素材库所有增删移动改名的流水</span>
+└── 设置            <span class="c">主题与强调色 / 素材库路径 / 配图源 / 隐私</span></div>
+  <div class="legend">
+    <span><i class="lg dash"></i>虚线框＝占位或待定内容</span>
+    <span><i class="lg solid"></i>实线框＝固定结构</span>
+    <span><i class="lg acc"></i>星青框＝主操作或当前选中</span>
+  </div>
+</section>
+
+<!-- 03 shell -->
+<section id="shell">
+  <h2>03 · 全局框架（App Shell）</h2>
+  <p>窗口最小 1024×700；左侧导航 168–200px 可折叠为图标条；顶部栏高 56px，滚动时吸顶。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">星空档案 · 主窗口</span></div>
+    <div class="wf-body">
+      <div class="side">
+        <div class="ph solid" style="height:44px">Logo · 星空档案</div>
+        <div class="navi on">首页</div>
+        <div class="navi">深空</div>
+        <div class="navi">星野</div>
+        <div class="navi">夜次</div>
+        <div class="navi">素材库</div>
+        <div class="navi">同步 <span style="margin-left:auto;color:#f5c26b">●</span></div>
+        <div class="navi">历史记录</div>
+        <div class="navi" style="margin-top:auto">设置</div>
+        <div class="ph" style="height:52px;font-size:10.5px">设备状态<br>未连接 / 已连接 F:</div>
+      </div>
+      <div class="main">
+        <div class="row">
+          <div class="ph grow" style="height:36px">搜索：目标 / 文件名 / 夜次</div>
+          <div class="ph acc" style="width:96px;height:36px">⇄ 同步</div>
+          <div class="ph" style="width:44px;height:36px">◐</div>
+        </div>
+        <div class="ph" style="flex:1;min-height:230px">内容区（各页面在此切换，保留滚动位置）</div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>导航固定七项；「同步」右侧的小圆点是设备连接状态（灰＝未连接，绿＝已连接，金＝待处理）。</li>
+    <li><b>2</b>顶部搜索为全局搜索，回车进入素材库并带上筛选条件。</li>
+    <li><b>3</b>「同步」是全局唯一主按钮，任何页面都能点；未连接时置灰并提示“请连接 Dwarf mini”。</li>
+    <li><b>4</b>切换页面不重置滚动位置与筛选条件，返回时保持原样。</li>
+  </ol>
+</section>
+
+<!-- 04 首页 -->
+<section id="home">
+  <h2>04 · 首页</h2>
+  <p>回答“我拍过什么、最近拍了什么”。从上到下：主视觉 → 统计条 → 目标网格 → 夜次月历 → 待办入口。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">首页</span></div>
+    <div class="wf-body col">
+      <div class="ph img" style="height:150px">最近作品大图（可点击进入查看器）· 左下角叠：M31 仙女座星系 / 2026-11-20 / 7 小时 30 分</div>
+      <div class="row">
+        <div class="stat grow"><span>深空目标</span><b>26</b></div>
+        <div class="stat grow"><span>拍摄夜次</span><b>34</b></div>
+        <div class="stat grow"><span>深空累计曝光</span><b>90.9 h</b></div>
+        <div class="stat grow"><span>星野作品</span><b>20</b></div>
+      </div>
+      <div class="row">
+        <div class="stack">
+          <div class="hint">深空目标 · 按最近拍摄排序　　<a href="#target" style="color:#6ee7ff;text-decoration:none">查看全部 →</a></div>
+          <div class="row">
+            <div class="ph img grow" style="height:92px">目标卡<br>封面 + 中文名 + 编号<br>3 个夜次 · 4.2 h</div>
+            <div class="ph img grow" style="height:92px">目标卡</div>
+            <div class="ph img grow" style="height:92px">目标卡</div>
+          </div>
+        </div>
+        <div class="stack" style="flex:0 0 240px">
+          <div class="hint">夜次月历 · 有拍摄的日期高亮</div>
+          <div class="cal">
+            <div class="on"></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            <div></div><div class="on"></div><div></div><div></div><div></div><div class="on"></div><div></div>
+            <div></div><div></div><div class="on"></div><div></div><div></div><div></div><div></div>
+            <div class="on"></div><div></div><div></div><div></div><div class="on"></div><div></div><div></div>
+          </div>
+          <div class="ph" style="height:44px">待办：待确认 3 · 收件箱 12</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="ph img grow" style="height:58px">星野 · 银河 12 组</div>
+        <div class="ph img grow" style="height:58px">星野 · 星轨 3 组（含 1 段视频）</div>
+        <div class="ph img grow" style="height:58px">星野 · 延时 5 段</div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>主视觉<strong>默认显示最近一张成片</strong>；可在任意作品上「设为封面」置顶覆盖，左上角显示“已置顶”，可一键取消回到最近成片。</li>
+    <li><b>2</b>统计条只显示 4 个数字，点击任意一项跳到对应筛选结果。</li>
+    <li><b>3</b>目标卡悬停显示“最近一次拍摄”与器材，右上角星标可置顶。</li>
+    <li><b>4</b>月历点某天 → 进入「夜次」页并定位到那一晚。</li>
+    <li><b>5</b>待办条只在有内容时出现，点击进入素材库的「待确认」或「收件箱」。</li>
+  </ol>
+</section>
+
+<!-- 05 目标详情 -->
+<section id="target">
+  <h2>05 · 深空目标详情</h2>
+  <p>左边是「天体名片」，右边是「我的作品」。名片回答“这是什么”，作品区回答“我拍成什么样”。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">深空 / M31 仙女座星系</span></div>
+    <div class="wf-body">
+      <div class="stack" style="flex:0 0 44%">
+        <div class="ph img" style="height:140px">天体名片配图（NASA 优先，无则爱好者作品）<br>右下角：来源 · 许可</div>
+        <div class="ph solid" style="align-items:flex-start;justify-content:flex-start;text-align:left;flex-direction:column;height:auto;gap:4px;padding:10px 12px">
+          <div style="font-size:14px;color:#e7eefb">M31 · 仙女座星系</div>
+          <div style="font-size:11px">Andromeda Galaxy · 圈内常称“仙女座大星系”</div>
+          <div style="font-size:11px">类型 螺旋星系 · 星座 仙女座 · 距离 254 万光年</div>
+          <div style="font-size:11px">简介：两句话说明它是什么、为什么值得拍。</div>
+          <div class="row" style="margin-top:6px">
+            <div class="ph" style="height:26px;padding:0 8px;font-size:10.5px">编辑资料</div>
+            <div class="ph" style="height:26px;padding:0 8px;font-size:10.5px">替换配图</div>
+            <div class="ph" style="height:26px;padding:0 8px;font-size:10.5px">锁定</div>
+          </div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="row">
+          <div class="ph grow" style="height:34px">共 3 个夜次 · 8 张成片 · 4.2 h · raw 1,240 帧</div>
+          <div class="ph" style="width:110px;height:34px">筛选 / 排序</div>
+        </div>
+        <div class="ph solid" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;height:auto">
+          <div style="font-size:11.5px;color:#9fe8f7">2026-11-20 · DWARFMINI · 累计 3 h 10 m</div>
+          <div class="row" style="width:100%">
+            <div class="ph img grow" style="height:54px">成片 1</div>
+            <div class="ph img grow" style="height:54px">成片 2</div>
+            <div class="ph img grow" style="height:54px">成片 3</div>
+          </div>
+        </div>
+        <div class="ph solid" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;height:auto">
+          <div style="font-size:11.5px;color:#9fe8f7">2026-09-12 · DWARFMINI · 累计 1 h 10 m</div>
+          <div class="row" style="width:100%">
+            <div class="ph img grow" style="height:54px">成片 1</div>
+            <div class="ph img grow" style="height:54px">成片 2</div>
+          </div>
+        </div>
+        <div class="ph" style="height:40px">2026-01-02 · 仅成片，无原始帧（点击查看）</div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>配图右下角永远显示来源与许可；手工替换后带锁图标，联网更新不覆盖（PRD 7.4）。</li>
+    <li><b>2</b>名字区第一行是编号 + 中文名，第二行英文名与圈内称呼，第三行结构化字段。</li>
+    <li><b>3</b>作品按夜次倒序，每组标题带器材与累计曝光；没有 raw 的组只显示成片。</li>
+    <li><b>4</b>点击缩略图进入查看器；点击组标题进入该夜次的素材列表。</li>
+    <li><b>5</b>右上角还有低频操作：合并到其他目标、标记最终版、在资源管理器中打开。</li>
+  </ol>
+</section>
+
+<!-- 06 星野 -->
+<section id="nightscape">
+  <h2>06 · 星野（银河 / 星轨 / 延时）</h2>
+  <p>与深空并列的第二条主线。三个页签对应三类作品；每组作品配一张记录卡，而不是天体名片。延时与星轨视频在同一页内直接播放。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">星野 · 银河</span></div>
+    <div class="wf-body col">
+      <div class="row">
+        <div class="ph acc" style="height:32px;padding:0 12px">银河 12 组</div>
+        <div class="ph" style="height:32px;padding:0 12px">星轨 3 组</div>
+        <div class="ph" style="height:32px;padding:0 12px">延时 5 段</div>
+        <div class="ph grow" style="height:32px">按夜次排序 · 搜索地点 / 器材</div>
+      </div>
+      <div class="row" style="flex:1">
+        <div class="stack" style="flex:0 0 60%">
+          <div class="ph solid" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;height:auto">
+            <div style="font-size:11.5px;color:#9fe8f7">2026-07-18 · CANON15MM · 银河 · 4 张成片</div>
+            <div class="row" style="width:100%">
+              <div class="ph img grow" style="height:52px">成片 1</div>
+              <div class="ph img grow" style="height:52px">成片 2</div>
+              <div class="ph img grow" style="height:52px">接片</div>
+            </div>
+          </div>
+          <div class="ph solid" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;height:auto">
+            <div style="font-size:11.5px;color:#9fe8f7">2026-08-02 · CANON15MM · 星轨 · 1 张成片 + 1 段视频</div>
+            <div class="row" style="width:100%">
+              <div class="ph img grow" style="height:52px">星轨成片</div>
+              <div class="ph img grow" style="height:52px">▶ 视频 00:12</div>
+            </div>
+          </div>
+          <div class="ph solid" style="flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;height:auto">
+            <div style="font-size:11.5px;color:#9fe8f7">2026-10-05 · CANON15MM · 延时 · 视频 00:18 · 序列帧 420</div>
+            <div class="row" style="width:100%">
+              <div class="ph img grow" style="height:52px">▶ 视频</div>
+              <div class="ph img grow" style="height:52px">首帧封面</div>
+            </div>
+          </div>
+        </div>
+        <div class="stack" style="flex:1">
+          <div class="ph solid" style="align-items:flex-start;flex-direction:column;gap:5px;padding:10px 12px;height:auto;flex:1">
+            <div style="font-size:11.5px;color:#9fe8f7">作品记录卡</div>
+            <div style="font-size:11px">地点　青海 · 冷湖</div>
+            <div style="font-size:11px">月相　新月前 2 天</div>
+            <div style="font-size:11px">器材　佳能 + 15mm · f/2.8</div>
+            <div style="font-size:11px">单张　20 s · ISO 3200</div>
+            <div style="font-size:11px">张数　180 张 · 堆栈 1 h</div>
+            <div style="font-size:11px">视频　00:18 · 1080p 30fps</div>
+            <div style="font-size:11px">后期　Sequator 堆栈 + 调色</div>
+            <div style="font-size:11px">备注　…</div>
+            <div class="row" style="margin-top:auto">
+              <div class="ph" style="height:24px;padding:0 8px;font-size:10.5px">编辑</div>
+              <div class="ph acc" style="height:24px;padding:0 8px;font-size:10.5px">保存</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>三个页签固定为银河 / 星轨 / 延时，数量直接显示在页签上；默认停留在最近一次拍摄的类别。</li>
+    <li><b>2</b>作品组以夜次为单位聚合，标题含器材与作品数量；视频用 ▶ 与时长角标区分。</li>
+    <li><b>3</b>记录卡字段含地点、月相、器材、单张参数、张数、总时长、后期、备注；缺信息显示“未填写”。</li>
+    <li><b>4</b>视频点击就地播放（暂停、全屏、逐帧可选），不做剪辑与导出。</li>
+    <li><b>5</b>星野不参与累计曝光统计，页面不出现“累计曝光”这类深空指标。</li>
+  </ol>
+</section>
+
+<!-- 06 素材库 -->
+<section id="library">
+  <h2>07 · 素材库与整理计划</h2>
+  <p>所有文件都在这一张表里，靠状态标签区分“已入库、待整理、待确认、已排除、缺失”。批量操作固定在底部。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">素材库</span></div>
+    <div class="wf-body col">
+      <div class="row">
+        <div class="ph acc" style="height:32px;padding:0 12px">全部 8,925</div>
+        <div class="ph" style="height:32px;padding:0 12px">待整理 12</div>
+        <div class="ph" style="height:32px;padding:0 12px">待确认 3</div>
+        <div class="ph" style="height:32px;padding:0 12px">已入库 8,905</div>
+        <div class="ph" style="height:32px;padding:0 12px">已排除 5</div>
+        <div class="ph" style="height:32px;padding:0 12px">缺失 0</div>
+      </div>
+      <div class="row">
+        <div class="ph grow" style="height:32px">搜索文件 / 目标</div>
+        <div class="ph" style="width:120px;height:32px">目标筛选</div>
+        <div class="ph" style="width:130px;height:32px">日期范围</div>
+        <div class="ph" style="width:110px;height:32px">器材筛选</div>
+        <div class="ph" style="width:90px;height:32px">导入</div>
+      </div>
+      <div class="ph solid" style="padding:0;overflow:hidden;min-height:0">
+        <table class="wft">
+          <thead><tr><th style="width:26px"><input type="checkbox" disabled></th><th style="width:44px">图</th><th>文件名</th><th>类别</th><th>目标/子类</th><th>夜次</th><th>器材</th><th>类型</th><th>曝光/时长</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td><input type="checkbox" checked disabled></td><td>▣</td><td>2026-11-20_M31_DWARFMINI_final_001.jpg</td><td>深空</td><td>M31</td><td>11-20</td><td>DWARF</td><td>成片</td><td>3 h 10 m</td><td style="color:#5eead4">已入库</td><td>···</td></tr>
+            <tr><td><input type="checkbox" checked disabled></td><td>▣</td><td>…_raw_0012.fits</td><td>深空</td><td>M31</td><td>11-20</td><td>DWARF</td><td>光帧</td><td>30 s</td><td style="color:#5eead4">已入库</td><td>···</td></tr>
+            <tr><td><input type="checkbox" disabled></td><td>▣</td><td>IMG_2043.JPG</td><td>星野</td><td>银河</td><td>07-18</td><td>CANON</td><td>成片</td><td>—</td><td style="color:#f5c26b">待确认</td><td>补录</td></tr>
+            <tr><td><input type="checkbox" disabled></td><td>▶</td><td>2026-10-05_TIMELAPSE_CANON15MM_clip_001.mp4</td><td>星野</td><td>延时</td><td>10-05</td><td>CANON</td><td>视频</td><td>00:18</td><td style="color:#5eead4">已入库</td><td>···</td></tr>
+            <tr><td><input type="checkbox" disabled></td><td>▣</td><td>failed_0007.fits</td><td>深空</td><td>M42</td><td>11-02</td><td>DWARF</td><td>废帧</td><td>—</td><td style="color:#8fa2be">已排除</td><td>恢复</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <div class="ph grow" style="height:32px;justify-content:flex-start;padding:0 10px">已选 2 项 · 3.2 GB</div>
+        <div class="ph" style="width:96px;height:32px">改目标</div>
+        <div class="ph" style="width:96px;height:32px">改夜次</div>
+        <div class="ph" style="width:96px;height:32px">标记排除</div>
+        <div class="ph acc" style="width:110px;height:32px">撤销上次整理</div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>状态页签带数量，点击即筛选；“待确认”和“缺失”用暖金、玫红点标记。</li>
+    <li><b>2</b>表格行高 34px，缩略图 28×28；文件名过长中间省略，悬停显示全名。</li>
+    <li><b>3</b>勾选后底部工具栏才激活，显示已选数量与体积。</li>
+    <li><b>4</b>双击行打开右侧详情抽屉；右键菜单：在资源管理器打开、复制路径、查看历史。</li>
+    <li><b>5</b>删除与排除都写历史记录，并提供 10 秒撤销提示。</li>
+  </ol>
+</section>
+
+<!-- 07 同步 -->
+<section id="sync">
+  <h2>08 · 同步</h2>
+  <p>同步是独立页面，不是弹窗：扫描结果、预检、选项、进度、结果都在同一页里自上而下完成。同步只服务<strong>深空</strong>（Dwarf 机身），星野素材走拖放导入。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">同步 · 已连接 Dwarf mini</span></div>
+    <div class="wf-body">
+      <div class="stack" style="flex:0 0 240px">
+        <div class="ph solid" style="align-items:flex-start;flex-direction:column;gap:5px;padding:10px 12px;height:auto">
+          <div style="font-size:12px"><span class="dotp"></span>已连接 · F:\Astronomy</div>
+          <div style="font-size:11px">会话 34 · 光帧 8,208 · 占用 42.4 GB</div>
+          <div style="font-size:11px">上次同步 2026-11-23 17:53</div>
+          <div class="ph" style="height:26px;padding:0 8px;font-size:10.5px">重新扫描</div>
+        </div>
+        <div class="ph solid" style="align-items:flex-start;flex-direction:column;gap:4px;padding:10px 12px;height:auto">
+          <div style="font-size:11.5px;color:#9fe8f7">本次选项</div>
+          <div style="font-size:11px">☑ 同步校准场新增（暗场库仅首次）</div>
+          <div style="font-size:11px">☐ 生成可安全删除清单</div>
+          <div style="font-size:11px">☑ 完成后打开结果页</div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="row">
+          <div class="stat grow"><span>新增会话</span><b>2</b></div>
+          <div class="stat grow"><span>已同步</span><b>32</b></div>
+          <div class="stat grow"><span>上次中断</span><b>1</b></div>
+          <div class="stat grow"><span>待拷</span><b>5.1 GB</b></div>
+        </div>
+        <div class="ph solid" style="padding:0;overflow:hidden;min-height:0">
+          <table class="wft">
+            <thead><tr><th>会话</th><th>目标</th><th>夜次</th><th>光帧</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>DWARF_RAW_TELE_M42_…</td><td>M42</td><td>11-22</td><td>183</td><td style="color:#6ee7ff">新增</td></tr>
+              <tr><td>DWARF_RAW_TELE_IC434_…</td><td>IC434</td><td>11-21</td><td>186</td><td style="color:#6ee7ff">新增</td></tr>
+              <tr><td>DWARF_RAW_TELE_MOSAIC_M31_…</td><td>M31</td><td>09-12</td><td>447</td><td style="color:#f5c26b">中断续传</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ph" style="height:32px">空间预检：剩余 412 GB，足够本次 5.1 GB</div>
+        <div class="row">
+          <div class="ph acc grow" style="height:34px">开始同步</div>
+          <div class="ph" style="width:100px;height:34px">取消</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>未连接时整页变成一张引导：插线 → 等待识别 → 自动扫描；不显示空表格。</li>
+    <li><b>2</b>扫描结果只列“需要处理”的会话，已同步的只给数字，不刷屏。</li>
+    <li><b>3</b>「生成可安全删除清单」默认<strong>不勾选</strong>，需要时手动勾；勾选后才在结果页产出清单。</li>
+    <li><b>4</b>开始前必须通过空间预检，不足则按钮置灰并显示“还需 X GB”。</li>
+    <li><b>5</b>同步中显示进度条、当前会话、已拷/总数与速度；可取消，取消后已校验文件保留。</li>
+  </ol>
+
+  <h3><span class="num">8.1</span>同步结果页</h3>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">同步 · 完成</span></div>
+    <div class="wf-body col">
+      <div class="ph acc" style="height:52px">已完成：新增 1,240 个文件 · 2 个目标 · 5.1 GB · 全部校验通过</div>
+      <div class="ph solid" style="padding:0;overflow:hidden;min-height:0">
+        <table class="wft">
+          <thead><tr><th>会话</th><th>文件数</th><th>体积</th><th>校验</th></tr></thead>
+          <tbody>
+            <tr><td>DWARF_RAW_TELE_M42_…</td><td>183</td><td>760 MB</td><td style="color:#5eead4">✓ 通过</td></tr>
+            <tr><td>DWARF_RAW_TELE_IC434_…</td><td>186</td><td>772 MB</td><td style="color:#5eead4">✓ 通过</td></tr>
+            <tr><td>DWARF_RAW_TELE_MOSAIC_M31_…</td><td>871</td><td>3.6 GB</td><td style="color:#5eead4">✓ 通过</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <div class="ph" style="width:130px;height:32px">导出删除清单</div>
+        <div class="ph" style="width:120px;height:32px">打开素材库</div>
+        <div class="ph grow" style="height:32px">查看历史记录</div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>删除清单说明：</b>清单只按会话列出文件名与校验结果，软件不删除机身任何文件；未勾选时此按钮不存在。</div>
+</section>
+
+<!-- 08 历史记录 -->
+<section id="history">
+  <h2>09 · 历史记录</h2>
+  <p>素材库的流水账。默认按时间倒序，一行一次文件操作；筛选后可直接导出 CSV。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">历史记录</span></div>
+    <div class="wf-body col">
+      <div class="row">
+        <div class="ph" style="width:150px;height:30px">时间范围</div>
+        <div class="ph" style="width:120px;height:30px">操作类型</div>
+        <div class="ph" style="width:120px;height:30px">类别</div>
+        <div class="ph" style="width:150px;height:30px">批次</div>
+        <div class="ph acc" style="width:110px;height:30px">导出 CSV</div>
+      </div>
+      <div class="ph solid" style="padding:0;overflow:hidden;min-height:0">
+        <table class="wft">
+          <thead><tr><th>时间</th><th>操作</th><th>类别</th><th>文件相对路径</th><th>大小</th><th>来源</th><th>批次</th></tr></thead>
+          <tbody>
+            <tr><td>11-23 18:01</td><td style="color:#a78bfa">改名</td><td>校准场-目录</td><td>_dwarf mini校准场\</td><td>2.8 GB</td><td>_校准场\</td><td>目录改名</td></tr>
+            <tr><td>11-23 17:53</td><td style="color:#5eead4">新增</td><td>校准场-bias</td><td>_dwarf mini校准场\bias\cam_0\…fits</td><td>4053 KB</td><td>F:\Astronomy\CALI_FRAME\bias</td><td>首次拷贝校准场</td></tr>
+            <tr><td>11-23 17:53</td><td style="color:#5eead4">新增</td><td>暗场库</td><td>_dwarf mini校准场\暗场库\…fits</td><td>4053 KB</td><td>F:\Astronomy\DWARF_DARK</td><td>首次拷贝校准场</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <div class="ph grow" style="height:30px;justify-content:flex-start;padding:0 10px">共 719 条 · 当前筛选 719 条</div>
+        <div class="ph" style="width:80px;height:30px">上一页</div>
+        <div class="ph" style="width:80px;height:30px">下一页</div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>「操作」用颜色区分：新增＝星青，删除＝玫红，移动/改名＝暗紫。</li>
+    <li><b>2</b>点击行打开右侧详情：完整路径、批次内其他文件、来源设备、可“在资源管理器中定位”。</li>
+    <li><b>3</b>只读视图，不能编辑或删除记录；导出即导出当前筛选结果。</li>
+    <li><b>4</b>批次可整批筛选，方便查看“某一次同步都干了什么”。</li>
+  </ol>
+</section>
+
+<!-- 09 查看与编辑 -->
+<section id="viewer">
+  <h2>10 · 查看器与字段编辑</h2>
+  <p>看图与改字段在同一屏：左边大图，右边抽屉。抽屉收起时就是纯浏览，符合“浏览时自动隐藏控件”。</p>
+  <div class="wf">
+    <div class="wf-bar"><i></i><i></i><i></i><span class="t">查看器 · 2026-11-20_M31_DWARFMINI_final_001.jpg</span></div>
+    <div class="wf-body">
+      <div class="stack">
+        <div class="ph img" style="flex:1;min-height:190px">大图（滚轮缩放 · 双击适应 · 拖拽平移）</div>
+        <div class="row">
+          <div class="ph img" style="height:44px;flex:1">缩略图</div>
+          <div class="ph img" style="height:44px;flex:1">缩略图</div>
+          <div class="ph acc" style="height:44px;flex:1">当前</div>
+          <div class="ph img" style="height:44px;flex:1">缩略图</div>
+          <div class="ph img" style="height:44px;flex:1">缩略图</div>
+        </div>
+      </div>
+      <div class="stack" style="flex:0 0 260px">
+        <div class="ph solid" style="align-items:flex-start;flex-direction:column;gap:5px;padding:10px 12px;height:auto;flex:1">
+          <div style="font-size:11.5px;color:#9fe8f7">字段（可编辑）</div>
+          <div style="font-size:11px">夜次日期　2026-11-20 <span style="color:#a78bfa">自动</span></div>
+          <div style="font-size:11px">目标　　　M31 <span style="color:#a78bfa">水印</span></div>
+          <div style="font-size:11px">器材　　　DWARF mini <span style="color:#6ee7ff">手工</span></div>
+          <div style="font-size:11px">单帧曝光　30 s <span style="color:#a78bfa">FITS</span></div>
+          <div style="font-size:11px">帧数　　　380</div>
+          <div style="font-size:11px">累计曝光　3 h 10 m</div>
+          <div style="font-size:11px">地点　　　未填写</div>
+          <div style="font-size:11px">评级　　　★★★☆☆</div>
+          <div style="font-size:11px">备注　　　…</div>
+          <div class="row" style="margin-top:auto">
+            <div class="ph" style="height:26px;padding:0 8px;font-size:10.5px">恢复自动值</div>
+            <div class="ph acc" style="height:26px;padding:0 8px;font-size:10.5px">保存</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ol class="ann">
+    <li><b>1</b>字段抽屉<strong>默认收起</strong>，进入即纯看图；点右上角「信息」滑出。上方线框展示的是展开态。</li>
+    <li><b>2</b>每个字段右侧标来源：自动 / 水印 / FITS / EXIF / 手工；手工值带锁，重新扫描不覆盖。</li>
+    <li><b>3</b>留空显示“未填写”，不显示 0，也不阻塞入库。</li>
+    <li><b>4</b>键盘：← → 切图，空格全屏，Esc 关闭抽屉或退出全屏。</li>
+    <li><b>5</b>保存后统计与检索立即刷新，并在历史记录里留下“改字段”一条。</li>
+  </ol>
+  <div class="note"><b>视频文件：</b>打开 mp4 / mov 时画面区换成播放器（播放、暂停、全屏、逐帧），右侧字段变为时长、分辨率、帧率、器材与记录卡字段；仍可改备注与评级。</div>
+</section>
+
+<!-- 10 流程 -->
+<section id="flows">
+  <h2>11 · 关键流程</h2>
+
+  <h3><span class="num">11.1</span>增量同步（深空）</h3>
+  <div class="flow">
+    <div class="fstep">连接机身</div><span class="arrow">→</span>
+    <div class="fstep">扫描新会话</div><span class="arrow">→</span>
+    <div class="fstep">空间预检</div><span class="arrow">→</span>
+    <div class="fstep dec">只拷光帧<br>跳过 failed_*</div><span class="arrow">→</span>
+    <div class="fstep">归档到目标/夜次</div><span class="arrow">→</span>
+    <div class="fstep">写历史记录</div><span class="arrow">→</span>
+    <div class="fstep acc">结果页</div><span class="arrow">→</span>
+    <div class="fstep dec">勾选才出删除清单</div>
+  </div>
+  <p class="hint">中断后可重复进入同一流程，只补缺失文件；全程不联网、不删机身文件。</p>
+
+  <h3><span class="num">11.2</span>成片入库（深空 / 星野通用）</h3>
+  <div class="flow">
+    <div class="fstep">拖入成片 / 丢进 _收件箱</div><span class="arrow">→</span>
+    <div class="fstep">读水印与 EXIF</div><span class="arrow">→</span>
+    <div class="fstep dec">置信度低？</div><span class="arrow">→</span>
+    <div class="fstep">匹配目标与夜次</div><span class="arrow">→</span>
+    <div class="fstep">落 final\ 并改名</div><span class="arrow">→</span>
+    <div class="fstep acc">写历史</div>
+  </div>
+  <p class="hint">低置信度分支：进「待确认」列表，整条标黄，可一键批量套用同一目标；绝不静默归类。</p>
+
+  <h3><span class="num">11.3</span>待确认处理</h3>
+  <div class="flow">
+    <div class="fstep">素材库 · 待确认</div><span class="arrow">→</span>
+    <div class="fstep">逐条看建议值</div><span class="arrow">→</span>
+    <div class="fstep dec">套用 / 手改 / 暂不整理</div><span class="arrow">→</span>
+    <div class="fstep">重新进入整理计划</div><span class="arrow">→</span>
+    <div class="fstep acc">入库</div>
+  </div>
+  <p class="hint">“暂不整理”长期保留，不反复打扰；收件箱文件不参与任何统计。</p>
+
+  <h3><span class="num">11.4</span>目录变化回写</h3>
+  <div class="flow">
+    <div class="fstep">手工在资源管理器改名/移动</div><span class="arrow">→</span>
+    <div class="fstep">软件启动检测差异</div><span class="arrow">→</span>
+    <div class="fstep dec">按文件指纹重新对上</div><span class="arrow">→</span>
+    <div class="fstep">更新记录并写历史</div>
+  </div>
+
+  <h3><span class="num">11.5</span>星野入库（含视频）</h3>
+  <div class="flow">
+    <div class="fstep">拖入照片 / 视频</div><span class="arrow">→</span>
+    <div class="fstep">读 EXIF<br>时间 / 镜头 / 参数</div><span class="arrow">→</span>
+    <div class="fstep dec">银河 / 星轨 / 延时？</div><span class="arrow">→</span>
+    <div class="fstep">按夜次建作品组</div><span class="arrow">→</span>
+    <div class="fstep">视频抽首帧封面</div><span class="arrow">→</span>
+    <div class="fstep">落 星野\子类\</div><span class="arrow">→</span>
+    <div class="fstep acc">写历史</div>
+  </div>
+  <p class="hint">星野没有原始帧，识别只依赖 EXIF 与手工；读不到拍摄时间就进待确认，不猜夜次。</p>
+</section>
+
+<!-- 11 状态 -->
+<section id="states">
+  <h2>12 · 状态与交互细节</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h4 style="margin-top:0">空态</h4>
+      <ul style="margin-bottom:0">
+        <li>没有任何素材：一张星图插画 + “把成片拖进来” + 两个按钮（选择文件、连接设备）。</li>
+        <li>深空目标为空：显示“还没有目标，导入成片后自动生成”。</li>
+        <li>星野为空：显示“把银河 / 星轨 / 延时作品拖进来”。</li>
+        <li>历史记录为空：显示“还没有操作记录”。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">加载与长时间任务</h4>
+      <ul style="margin-bottom:0">
+        <li>超过 400ms 才显示骨架屏，避免闪烁。</li>
+        <li>扫描/拷贝显示进度与当前文件名，可取消。</li>
+        <li>单次 1 万文件以上不阻塞界面，列表分批渲染。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">错误与异常</h4>
+      <ul style="margin-bottom:0">
+        <li>设备断开：顶部状态转灰，同步页停在原地并提示“连接已断开，已拷文件保留”。</li>
+        <li>空间不足：开始前拦截；拷贝中不足则暂停并保留已完成文件。</li>
+        <li>文件被占用/权限不足：单文件失败不中断整批，结果页列失败项与原因。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">快捷操作</h4>
+      <ul style="margin-bottom:0">
+        <li>Ctrl+F 搜索，Ctrl+S 保存字段，Ctrl+Z 撤销最近一次整理。</li>
+        <li>← → 查看器切图，空格全屏，Esc 退出。</li>
+        <li>表格支持 Shift 连选、Ctrl 点选、Ctrl+A 全选当前筛选。</li>
+        <li>所有危险操作二次确认，确认文案写清后果与影响数量。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note warn"><b>视觉方向（下一阶段展开）：</b>深色为默认，星青作主操作色、暗紫作信息色；卡片圆角 12–14px，边框低对比；字体用系统字体保证中文清晰；图片一律圆角 8px 并有 1px 内描边，避免深色背景吞掉照片边缘。</div>
+</section>
+
+<!-- 12 下一步 -->
+<section id="next">
+  <h2>13 · 下一步</h2>
+  <ul>
+    <li>确认本线框的<strong>两条主线划分、页面结构、导航命名、信息优先级</strong>；有要增删的页面现在提，改动成本最低。</li>
+    <li>确认后进入高保真视觉稿：配色、字体层级、卡片与表格细节、空态插画、动效节奏。</li>
+    <li>视觉稿确认后，再决定是否先做可点击原型；按 PRD 约定，在此之前不写正式代码。</li>
+  </ul>
+  <div class="note"><b>已确认：</b>① 首页主视觉＝最近成片 + 可置顶覆盖；② 左侧导航保留独立「夜次」入口；③ 查看器字段抽屉默认收起，点「信息」滑出。</div>
+  <div class="note warn"><b>下一步：</b>按以上结构出高保真视觉稿（配色、字体层级、卡片与表格细节、空态插画、动效节奏），确认后再决定是否做可点击原型；在原型之前不写正式代码。</div>
+</section>
+
+<footer>
+  <span>星空摄影档案管理软件 · 交互与线框图 v0.2</span>
+  <span>依据 PRD v0.7 · 2026-11-23</span>
+</footer>
+
+</div>
+</body>
+</html>

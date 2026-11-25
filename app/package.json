@@ -1,0 +1,98 @@
+{
+  "name": "astro-archive",
+  "version": "0.3.1",
+  "private": true,
+  "description": "星空档案馆 — 本地天文摄影素材归档管理工具",
+  "author": "Anonymous",
+  "copyright": "Copyright © 2026 星空档案馆 Contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "keywords": [
+    "astrophotography",
+    "electron",
+    "archive",
+    "astronomy",
+    "dwarf"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thinkerzero2005/astro-archive.git"
+  },
+  "homepage": "https://github.com/thinkerzero2005/astro-archive#readme",
+  "bugs": {
+    "url": "https://github.com/thinkerzero2005/astro-archive/issues"
+  },
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build:main": "node scripts/build-main.mjs",
+    "build:renderer": "vite build",
+    "build": "npm run build:main && npm run build:renderer",
+    "pack": "npm run build && node scripts/pack.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/test.mjs"
+  },
+  "dependencies": {
+    "exifr": "^7.1.3",
+    "sharp": "^0.35.5",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  },
+  "build": {
+    "appId": "com.astroarchive.app",
+    "productName": "星空档案馆",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/tessdata",
+        "to": "tessdata"
+      }
+    ],
+    "asarUnpack": [
+      "**/node_modules/sharp/**",
+      "**/node_modules/@img/**",
+      "**/node_modules/tesseract.js/**",
+      "**/node_modules/tesseract.js-core/**"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "星空档案馆_${version}.exe"
+    }
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "electron@45.4.1": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
