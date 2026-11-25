@@ -10,8 +10,8 @@
 - [x] CI（Windows：typecheck / test / build）
 - [x] Issue / PR 模板与贡献指南
 - [x] 规划文档归位到 `docs/`
-- [ ] 界面截图（脱敏）
-- [ ] `v0.3.1` tag 与 Release 产物
+- [x] 界面截图（脱敏）
+- [x] `v0.3.1` tag 与 Release 产物
 
 ## 阶段 B：质量与稳定性
 
