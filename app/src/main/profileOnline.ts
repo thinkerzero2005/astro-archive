@@ -55,7 +55,7 @@ interface WikiSummary {
 const CACHE_MAX_AGE_MS = 7 * 24 * 3600 * 1000
 const FETCH_TIMEOUT_MS = 8000
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024
-const USER_AGENT = 'AstroArchive/0.3.1 (local astrophotography archive)'
+const USER_AGENT = 'AstroArchive/0.4.0 (local astrophotography archive)'
 
 function slug(catalogId: string) {
   return catalogId.replace(/[^a-zA-Z0-9_-]/g, '_') || 'target'
