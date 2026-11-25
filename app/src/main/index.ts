@@ -42,6 +42,7 @@ import { previewSync, runSync } from './sync'
 import type { SyncProgress, SyncRunOptions, SyncTargetOverride } from './sync'
 import { CALIB_DIR, HISTORY_DIR, HISTORY_FILE, calibrationPath, getCalibrationData } from './calibration'
 import { backupDir, dailyBackup, listBackups, restoreBackup } from './backup'
+import { initLogger, logDir, logStats, writeLog } from './logger'
 import { inspectLibraryDir, prepareLibraryDir } from './librarySetup'
 import { openEncyclopedia } from './encyclopedia'
 import { getOnlineProfile } from './profileOnline'
@@ -277,6 +278,7 @@ async function runScan(win: BrowserWindow | null, full = false) {
     win?.webContents.send('library:changed', result)
     return result
   } catch (err) {
+    console.error('[scan] 扫描失败:', err)
     const result: ScanResult = {
       ok: false,
       scannedAt: new Date().toISOString(),
@@ -536,6 +538,7 @@ function registerIpc() {
     }
     const syncSource = getSetting(db, 'last_sync_source') ?? ''
     const synced = db.prepare('SELECT COUNT(*) AS c FROM synced_files').get() as { c?: number }
+    const logs = logStats(dataDir)
     return {
       libraryRoot: root,
       dataDir,
@@ -556,7 +559,10 @@ function registerIpc() {
       calibrationExists: fs.existsSync(path.join(root, CALIB_DIR)),
       onlineProfileEnabled: getSetting(db, 'allow_online_profile') === '1',
       backupDir: backupDir(dataDir),
-      backups: listBackups(dataDir)
+      backups: listBackups(dataDir),
+      logsDir: logs.dir,
+      logFiles: logs.files,
+      logBytes: logs.bytes
     }
   })
 
@@ -604,6 +610,7 @@ function registerIpc() {
   })
 
   ipcMain.handle('settings:openDataDir', () => openFolder(dataDir))
+  ipcMain.handle('settings:openLogs', () => openFolder(logDir(dataDir)))
   ipcMain.handle('settings:openHistory', () => openFolder(path.join(libraryRoot(), HISTORY_DIR)))
 
   ipcMain.handle('library:inspect', (_e, dir: string) =>
@@ -685,6 +692,11 @@ function createWindow() {
     return { action: 'deny' }
   })
 
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    console.error('[renderer] 渲染进程退出:', details.reason, details.exitCode)
+  })
+  mainWindow.on('unresponsive', () => console.error('[window] 窗口无响应'))
+
   const shouldScan = !getSetting(db, 'last_scan_at')
   mainWindow.webContents.once('did-finish-load', () => {
     if (shouldScan) setTimeout(() => runScan(mainWindow), 400)
@@ -708,6 +720,8 @@ if (!gotLock) {
 
   app.whenReady().then(async () => {
     fs.mkdirSync(thumbsDir, { recursive: true })
+    initLogger(dataDir)
+    writeLog(dataDir, 'INFO', [`应用启动 v${app.getVersion()}${buildDate ? ` (${buildDate})` : ''}`])
     db = openDatabase(dataDir)
     ensureDefaults(db)
     registerIpc()

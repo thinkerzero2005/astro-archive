@@ -704,6 +704,9 @@ export interface SettingsInfo {
   onlineProfileEnabled: boolean
   backupDir: string
   backups: BackupEntry[]
+  logsDir: string
+  logFiles: number
+  logBytes: number
 }
 
 export interface BackupEntry {

@@ -20,6 +20,7 @@ const CASES = [
   { name: 'incremental', file: 'incremental.test.ts' },
   { name: 'appearance', file: 'appearance.test.ts' },
   { name: 'backup', file: 'backup.test.ts' },
+  { name: 'logger', file: 'logger.test.ts' },
   { name: 'watermark', file: 'watermark.test.ts' },
   { name: 'real-copy', file: 'real-copy.test.ts', device: true },
   { name: 'real-mosaic', file: 'real-mosaic.test.ts', device: true }

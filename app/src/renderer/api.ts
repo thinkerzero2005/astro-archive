@@ -125,6 +125,7 @@ export interface AstroApi {
   homeModulesSet: (patch: Partial<HomeModules>) => Promise<{ ok: boolean; modules?: HomeModules; error?: string }>
   pickLibraryRoot: () => Promise<{ ok: boolean; path?: string; canceled?: boolean; error?: string }>
   openDataDir: () => Promise<OpResult>
+  openLogs: () => Promise<OpResult>
   openHistory: () => Promise<OpResult>
   calibGet: () => Promise<CalibrationData>
   calibOpen: (key: string) => Promise<OpResult>

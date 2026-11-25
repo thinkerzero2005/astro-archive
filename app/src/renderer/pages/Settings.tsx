@@ -308,6 +308,9 @@ export function Settings({
             <div className="t">
               本地数据 <em>索引与缩略图缓存</em>
             </div>
+            <button className="link" onClick={() => run(api.openLogs)}>
+              打开日志
+            </button>
           </div>
           <div className="set-row">
             <span className="set-key">数据目录</span>
@@ -326,6 +329,13 @@ export function Settings({
             <span className="set-key">缩略图缓存</span>
             <span className="set-val mono" title={info.thumbsDir}>
               {info.thumbsDir}
+            </span>
+          </div>
+          <div className="set-row">
+            <span className="set-key">运行日志</span>
+            <span className="set-val">
+              {info.logFiles > 0 ? `${info.logFiles} 个文件 · ${bytesLabel(info.logBytes)}` : '尚未生成'}
+              <span className="mono dim"> · {info.logsDir}</span>
             </span>
           </div>
         </div>

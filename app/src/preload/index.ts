@@ -70,6 +70,7 @@ const api = {
   setOnlineProfile: (enabled: boolean) => ipcRenderer.invoke('settings:setOnlineProfile', enabled),
   pickLibraryRoot: () => ipcRenderer.invoke('settings:pickLibraryRoot'),
   openDataDir: () => ipcRenderer.invoke('settings:openDataDir'),
+  openLogs: () => ipcRenderer.invoke('settings:openLogs'),
   openHistory: () => ipcRenderer.invoke('settings:openHistory'),
   calibGet: () => ipcRenderer.invoke('calib:get'),
   calibOpen: (key: string) => ipcRenderer.invoke('calib:open', key),
