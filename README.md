@@ -15,6 +15,22 @@
 - **可选的在线天体名片**：默认关闭；开启后只发送天体名称到维基百科查询简介。
 - **外观设置**：深/浅/跟随系统主题、强调色、减少动效、首页模块显隐与排序。
 
+## 界面预览
+
+截图使用内置示例素材库拍摄的合成图片，不包含任何真实素材与本机路径。
+
+| 首页 | 深空 |
+| --- | --- |
+| ![首页](docs/screenshots/01-home.png) | ![深空](docs/screenshots/02-deepsky.png) |
+
+| 目标详情 | 夜次 |
+| --- | --- |
+| ![目标详情](docs/screenshots/03-target.png) | ![夜次](docs/screenshots/04-nights.png) |
+
+| 设置与外观 |
+| --- |
+| ![设置](docs/screenshots/05-settings.png) |
+
 ## 系统要求
 
 - Windows 10 / 11 x64
