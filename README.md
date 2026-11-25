@@ -55,7 +55,7 @@ npm run dev
 npm run typecheck    # TypeScript 类型检查
 npm test             # 运行全部测试（真机相关用例会自动跳过）
 npm run build        # 构建主进程与渲染进程
-npm run pack         # 打包 Windows x64 便携版，输出到 app/release
+npm run pack         # 打包 Windows x64 便携版与 NSIS 安装版，输出到 app/release
 ```
 
 ## 环境变量
@@ -91,8 +91,8 @@ npm run pack         # 打包 Windows x64 便携版，输出到 app/release
 
 ## 已知限制
 
-- 目前只提供 Windows x64 便携版。
-- 安装包未做代码签名，首次运行可能触发 SmartScreen 提示。
+- 提供 Windows x64 便携版与 NSIS 安装版：安装版按当前用户安装、可选安装目录，并创建桌面与开始菜单快捷方式。
+- 两种产物均未做代码签名，首次运行可能触发 SmartScreen 提示。
 - 暂不支持自动更新。
 - 只面向本地单机使用，不含多设备协同。
 

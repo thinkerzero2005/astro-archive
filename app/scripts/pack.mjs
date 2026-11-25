@@ -11,7 +11,8 @@ if (!fs.existsSync(cli)) {
   process.exit(1)
 }
 
-const args = [cli, '--win', 'portable', '--x64', '--publish', 'never', ...process.argv.slice(2)]
+// 目标来自 package.json build.win.target：便携版 + NSIS 安装版
+const args = [cli, '--win', '--x64', '--publish', 'never', ...process.argv.slice(2)]
 
 const child = spawn(process.execPath, args, {
   cwd: appDir,

@@ -83,11 +83,28 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
     "portable": {
       "artifactName": "星空档案馆_${version}.exe"
+    },
+    "nsis": {
+      "artifactName": "星空档案馆_${version}_安装版.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "星空档案馆",
+      "uninstallDisplayName": "星空档案馆",
+      "deleteAppDataOnUninstall": false
     }
   },
   "allowScripts": {
