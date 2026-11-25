@@ -41,6 +41,7 @@ import {
 import { previewSync, runSync } from './sync'
 import type { SyncProgress, SyncRunOptions, SyncTargetOverride } from './sync'
 import { CALIB_DIR, HISTORY_DIR, HISTORY_FILE, calibrationPath, getCalibrationData } from './calibration'
+import { backupDir, dailyBackup, listBackups, restoreBackup } from './backup'
 import { inspectLibraryDir, prepareLibraryDir } from './librarySetup'
 import { openEncyclopedia } from './encyclopedia'
 import { getOnlineProfile } from './profileOnline'
@@ -553,8 +554,41 @@ function registerIpc() {
       historyExists: fs.existsSync(historyPath),
       calibrationPath: path.join(root, CALIB_DIR),
       calibrationExists: fs.existsSync(path.join(root, CALIB_DIR)),
-      onlineProfileEnabled: getSetting(db, 'allow_online_profile') === '1'
+      onlineProfileEnabled: getSetting(db, 'allow_online_profile') === '1',
+      backupDir: backupDir(dataDir),
+      backups: listBackups(dataDir)
     }
+  })
+
+  ipcMain.handle('backup:list', () => ({ backupDir: backupDir(dataDir), backups: listBackups(dataDir) }))
+  ipcMain.handle('backup:openDir', () => openFolder(backupDir(dataDir)))
+
+  ipcMain.handle('backup:restore', async (_e, fileName: string) => {
+    const name = path.basename(String(fileName ?? ''))
+    if (scanning) return { ok: false, error: '正在扫描素材库，请稍后再试' }
+    const options = {
+      type: 'warning' as const,
+      title: '恢复数据库备份',
+      message: `用 ${name} 覆盖当前索引数据库？`,
+      detail:
+        '当前数据库会先另存为 archive_before_restore_*.db，随后应用自动重启。素材库里的照片不会被改动，恢复后如需补全索引可重新扫描。',
+      buttons: ['取消', '恢复并重启'],
+      defaultId: 0,
+      cancelId: 0,
+      noLink: true
+    }
+    const res = mainWindow ? await dialog.showMessageBox(mainWindow, options) : await dialog.showMessageBox(options)
+    if (res.response !== 1) return { ok: false, canceled: true }
+    // 先关掉数据库连接，Windows 下才能安全覆盖 archive.db
+    db.close()
+    const result = restoreBackup(dataDir, name)
+    if (!result.ok) {
+      db = openDatabase(dataDir)
+      return result
+    }
+    app.relaunch()
+    app.exit(0)
+    return { ok: true, safetyFile: result.safetyFile }
   })
 
   ipcMain.handle('settings:pickLibraryRoot', async () => {
@@ -679,6 +713,17 @@ if (!gotLock) {
     registerIpc()
     await registerProtocol()
     createWindow()
+
+    // 按天备份：启动时补一次，长期开着也每 4 小时检查。失败只记日志，不影响使用。
+    const runBackup = () => {
+      try {
+        dailyBackup(db, dataDir)
+      } catch (err) {
+        console.error('[backup] 每日备份失败:', err)
+      }
+    }
+    runBackup()
+    setInterval(runBackup, 4 * 60 * 60 * 1000)
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()

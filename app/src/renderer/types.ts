@@ -702,6 +702,15 @@ export interface SettingsInfo {
   calibrationPath: string
   calibrationExists: boolean
   onlineProfileEnabled: boolean
+  backupDir: string
+  backups: BackupEntry[]
+}
+
+export interface BackupEntry {
+  fileName: string
+  date: string
+  bytes: number
+  mtime: string
 }
 
 export interface LibraryDirCheck {

@@ -71,6 +71,15 @@ export function Settings({
     onOpenLibraryWizard()
   }
 
+  const restore = async (fileName: string) => {
+    try {
+      const res = await api.restoreBackup(fileName)
+      if (!res.ok && !res.canceled) pushToast(res.error ?? '恢复失败', 'error')
+    } catch (err) {
+      pushToast((err as Error).message, 'error')
+    }
+  }
+
   if (!info) {
     return (
       <div className="empty">
@@ -319,6 +328,37 @@ export function Settings({
               {info.thumbsDir}
             </span>
           </div>
+        </div>
+
+        <div className="block">
+          <div className="block-head">
+            <div className="t">
+              数据库备份 <em>每天自动保存，保留最近 7 份</em>
+            </div>
+            <button className="link" onClick={() => run(api.openBackupDir)}>
+              打开备份目录
+            </button>
+          </div>
+          {info.backups.length === 0 ? (
+            <div className="set-row">
+              <span className="set-key">备份</span>
+              <span className="set-val">还没有备份，下次启动会自动生成</span>
+            </div>
+          ) : (
+            info.backups.map((item) => (
+              <div className="set-row" key={item.fileName}>
+                <span className="set-key">{item.date}</span>
+                <span className="set-val mono">{bytesLabel(item.bytes)}</span>
+                <button className="btn ghost sm" style={{ marginLeft: 'auto' }} onClick={() => void restore(item.fileName)}>
+                  恢复
+                </button>
+              </div>
+            ))
+          )}
+          <p className="set-note">
+            启动时用 SQLite 快照生成当天备份，长期开着每 4 小时检查一次；恢复前会把当前数据库另存为
+            archive_before_restore_*.db，随后自动重启，素材库中的照片不受影响。
+          </p>
         </div>
 
         <div className="block">

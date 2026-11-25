@@ -1,5 +1,6 @@
 import type {
   Appearance,
+  BackupEntry,
   CalibrationData,
   CreateNightPatch,
   EncyclopediaSite,
@@ -115,6 +116,9 @@ export interface AstroApi {
   inspectLibrary: (dir: string) => Promise<LibraryDirCheck>
   prepareLibrary: (dir: string, options: { allowNonEmpty?: boolean }) => Promise<LibraryPrepareResult>
   settingsInfo: () => Promise<SettingsInfo>
+  backupList: () => Promise<{ backupDir: string; backups: BackupEntry[] }>
+  openBackupDir: () => Promise<OpResult>
+  restoreBackup: (fileName: string) => Promise<{ ok: boolean; canceled?: boolean; error?: string; safetyFile?: string }>
   appearanceGet: () => Promise<Appearance>
   appearanceSet: (patch: Partial<Appearance>) => Promise<{ ok: boolean; appearance?: Appearance; error?: string }>
   homeModulesGet: () => Promise<HomeModules>

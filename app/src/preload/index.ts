@@ -60,6 +60,9 @@ const api = {
   prepareLibrary: (dir: string, options: { allowNonEmpty?: boolean }) =>
     ipcRenderer.invoke('library:prepare', dir, options),
   settingsInfo: () => ipcRenderer.invoke('settings:info'),
+  backupList: () => ipcRenderer.invoke('backup:list'),
+  openBackupDir: () => ipcRenderer.invoke('backup:openDir'),
+  restoreBackup: (fileName: string) => ipcRenderer.invoke('backup:restore', fileName),
   appearanceGet: () => ipcRenderer.invoke('appearance:get'),
   appearanceSet: (patch: unknown) => ipcRenderer.invoke('appearance:set', patch),
   homeModulesGet: () => ipcRenderer.invoke('home:getModules'),
